@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>C# Тест</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d2e;
+    --surface2: #252840;
+    --accent: #6c63ff;
+    --accent2: #ff6584;
+    --success: #43d9ad;
+    --error: #ff6b6b;
+    --text: #e2e8f0;
+    --text2: #94a3b8;
+    --border: #2d3154;
+  }
+
+  body {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* MENU SCREEN */
+  #menu-screen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 2rem;
+    text-align: center;
+  }
+
+  .logo {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+  }
+
+  h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 0.5rem;
+  }
+
+  .subtitle {
+    color: var(--text2);
+    margin-bottom: 3rem;
+    font-size: 1rem;
+  }
+
+  .mode-cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    max-width: 600px;
+    width: 100%;
+    margin-bottom: 2rem;
+  }
+
+  .mode-card {
+    background: var(--surface);
+    border: 2px solid var(--border);
+    border-radius: 16px;
+    padding: 2rem;
+    cursor: pointer;
+    transition: all 0.3s;
+    text-align: center;
+  }
+
+  .mode-card:hover {
+    border-color: var(--accent);
+    transform: translateY(-4px);
+    box-shadow: 0 8px 32px rgba(108,99,255,0.3);
+  }
+
+  .mode-icon { font-size: 2.5rem; margin-bottom: 1rem; }
+  .mode-title { font-size: 1.2rem; font-weight: 700; margin-bottom: 0.5rem; }
+  .mode-desc { color: var(--text2); font-size: 0.85rem; }
+  .mode-count {
+    display: inline-block;
+    margin-top: 1rem;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: white;
+    border-radius: 20px;
+    padding: 0.25rem 1rem;
+    font-size: 0.8rem;
+    font-weight: 700;
+  }
+
+  .stats-row {
+    display: flex;
+    gap: 2rem;
+    color: var(--text2);
+    font-size: 0.9rem;
+  }
+  .stats-row span { color: var(--text); font-weight: 600; }
+
+  /* QUIZ SCREEN */
+  #quiz-screen { display: none; min-height: 100vh; }
+
+  .quiz-header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 1rem 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .quiz-title { font-weight: 700; font-size: 1rem; }
+
+  .progress-wrap { flex: 1; margin: 0 2rem; }
+  .progress-bar-bg {
+    background: var(--border);
+    border-radius: 10px;
+    height: 8px;
+    overflow: hidden;
+  }
+  .progress-bar-fill {
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    height: 100%;
+    border-radius: 10px;
+    transition: width 0.5s ease;
+  }
+  .progress-text { font-size: 0.75rem; color: var(--text2); margin-top: 4px; text-align: center; }
+
+  .score-badge {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 0.4rem 1rem;
+    font-size: 0.85rem;
+    white-space: nowrap;
+  }
+  .score-badge .s { color: var(--success); font-weight: 700; }
+  .score-badge .e { color: var(--error); font-weight: 700; }
+
+  .quiz-body {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 2rem;
+  }
+
+  .q-number {
+    font-size: 0.85rem;
+    color: var(--text2);
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+  }
+
+  .q-text {
+    font-size: 1.15rem;
+    font-weight: 600;
+    line-height: 1.6;
+    margin-bottom: 2rem;
+    color: var(--text);
+  }
+
+  .answers-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .answer-btn {
+    background: var(--surface);
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    padding: 1rem 1.25rem;
+    cursor: pointer;
+    text-align: left;
+    color: var(--text);
+    font-size: 0.95rem;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    line-height: 1.4;
+  }
+
+  .answer-btn:hover:not(.disabled) {
+    border-color: var(--accent);
+    background: var(--surface2);
+  }
+
+  .answer-btn .letter {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--surface2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.85rem;
+    flex-shrink: 0;
+    border: 1px solid var(--border);
+  }
+
+  .answer-btn.correct {
+    border-color: var(--success);
+    background: rgba(67,217,173,0.1);
+  }
+  .answer-btn.correct .letter {
+    background: var(--success);
+    color: #0f1117;
+    border-color: var(--success);
+  }
+
+  .answer-btn.wrong {
+    border-color: var(--error);
+    background: rgba(255,107,107,0.1);
+  }
+  .answer-btn.wrong .letter {
+    background: var(--error);
+    color: white;
+    border-color: var(--error);
+  }
+
+  .answer-btn.selected {
+    border-color: var(--accent);
+    background: rgba(108,99,255,0.1);
+  }
+  .answer-btn.disabled { cursor: not-allowed; }
+
+  /* Loading indicator */
+  .checking-indicator {
+    display: none;
+    align-items: center;
+    gap: 0.75rem;
+    color: var(--text2);
+    font-size: 0.9rem;
+    margin-top: 1.5rem;
+  }
+  .checking-indicator.visible { display: flex; }
+  .spinner {
+    width: 20px; height: 20px;
+    border: 2px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .feedback-box {
+    display: none;
+    margin-top: 1.5rem;
+    padding: 1rem 1.25rem;
+    border-radius: 12px;
+    font-size: 0.9rem;
+    line-height: 1.5;
+  }
+  .feedback-box.correct-fb {
+    display: block;
+    background: rgba(67,217,173,0.1);
+    border: 1px solid rgba(67,217,173,0.3);
+    color: var(--success);
+  }
+  .feedback-box.wrong-fb {
+    display: block;
+    background: rgba(255,107,107,0.1);
+    border: 1px solid rgba(255,107,107,0.3);
+    color: var(--error);
+  }
+
+  .nav-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border);
+  }
+
+  .btn {
+    padding: 0.75rem 1.5rem;
+    border-radius: 10px;
+    border: none;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, var(--accent), #8b85ff);
+    color: white;
+  }
+  .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
+  .btn-ghost {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text2);
+  }
+  .btn-ghost:hover { border-color: var(--text2); color: var(--text); }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+  /* RESULT SCREEN */
+  #result-screen {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 2rem;
+    text-align: center;
+  }
+
+  .result-emoji { font-size: 4rem; margin-bottom: 1rem; }
+  .result-title { font-size: 1.8rem; font-weight: 700; margin-bottom: 0.5rem; }
+  .result-subtitle { color: var(--text2); margin-bottom: 2rem; }
+
+  .score-circle {
+    width: 160px;
+    height: 160px;
+    border-radius: 50%;
+    background: conic-gradient(var(--accent) 0%, var(--accent2) var(--pct), var(--border) var(--pct));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 2rem;
+    position: relative;
+  }
+  .score-inner {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: var(--bg);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  .score-pct { font-size: 2rem; font-weight: 800; }
+  .score-label { font-size: 0.7rem; color: var(--text2); }
+
+  .result-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    max-width: 400px;
+    width: 100%;
+    margin: 0 auto 2rem;
+  }
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1rem;
+  }
+  .stat-num { font-size: 1.5rem; font-weight: 700; }
+  .stat-lbl { font-size: 0.75rem; color: var(--text2); margin-top: 0.25rem; }
+  .stat-card.s .stat-num { color: var(--success); }
+  .stat-card.e .stat-num { color: var(--error); }
+
+  .result-btns { display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; }
+
+  /* REVIEW SCREEN */
+  #review-screen { display: none; }
+  .review-header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 1rem 2rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .review-body { max-width: 800px; margin: 0 auto; padding: 2rem; }
+  .review-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+  }
+  .review-item.correct-item { border-color: rgba(67,217,173,0.4); }
+  .review-item.wrong-item { border-color: rgba(255,107,107,0.4); }
+  .review-q-num { font-size: 0.8rem; color: var(--text2); margin-bottom: 0.5rem; }
+  .review-q-text { font-weight: 600; margin-bottom: 1rem; line-height: 1.5; }
+  .review-answers { display: flex; flex-direction: column; gap: 0.4rem; }
+  .review-ans {
+    padding: 0.5rem 0.75rem;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    display: flex;
+    gap: 0.75rem;
+    align-items: flex-start;
+  }
+  .review-ans.r-correct { background: rgba(67,217,173,0.15); color: var(--success); }
+  .review-ans.r-wrong-sel { background: rgba(255,107,107,0.15); color: var(--error); }
+  .review-ans.r-neutral { color: var(--text2); }
+
+  @media (max-width: 600px) {
+    .mode-cards { grid-template-columns: 1fr; }
+    .quiz-header { flex-wrap: wrap; gap: 0.5rem; }
+    .progress-wrap { order: 3; flex: 0 0 100%; margin: 0; }
+    .result-stats { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- MENU -->
+<div id="menu-screen">
+  <div class="logo">💻</div>
+  <h1>C# Тесті</h1>
+  <p class="subtitle">Бағдарламалау тілі бойынша білімді тексеру</p>
+
+  <div class="mode-cards">
+    <div class="mode-card" onclick="startQuiz(40)">
+      <div class="mode-icon">⚡</div>
+      <div class="mode-title">Жылдам тест</div>
+      <div class="mode-desc">Барлық сұрақтардан кездейсоқ таңдалады</div>
+      <div class="mode-count">40 сұрақ</div>
+    </div>
+    <div class="mode-card" onclick="startQuiz('all')">
+      <div class="mode-icon">🎯</div>
+      <div class="mode-title">Толық тест</div>
+      <div class="mode-desc">Барлық сұрақтар кездейсоқ ретпен</div>
+      <div class="mode-count">371 сұрақ</div>
+    </div>
+  </div>
+
+  <div class="stats-row">
+    <div>Барлығы: <span>371</span> сұрақ</div>
+    <div>Тақырып: <span>C# .NET</span></div>
+    <div>Тіл: <span>Қазақша</span></div>
+  </div>
+</div>
+
+<!-- QUIZ -->
+<div id="quiz-screen">
+  <div class="quiz-header">
+    <div class="quiz-title" id="quiz-mode-label">Тест</div>
+    <div class="progress-wrap">
+      <div class="progress-bar-bg">
+        <div class="progress-bar-fill" id="progress-fill" style="width:0%"></div>
+      </div>
+      <div class="progress-text" id="progress-text">0 / 0</div>
+    </div>
+    <div class="score-badge">
+      <span class="s" id="score-correct">0</span> ✓ &nbsp;
+      <span class="e" id="score-wrong">0</span> ✗
+    </div>
+  </div>
+
+  <div class="quiz-body">
+    <div class="q-number" id="q-number"></div>
+    <div class="q-text" id="q-text"></div>
+    <div class="answers-grid" id="answers-grid"></div>
+
+    <div class="checking-indicator" id="checking-ind">
+      <div class="spinner"></div>
+      <span>Жауап тексерілуде...</span>
+    </div>
+
+    <div class="feedback-box" id="feedback-box"></div>
+
+    <div class="nav-row">
+      <button class="btn btn-ghost" onclick="exitToMenu()">← Менюге</button>
+      <button class="btn btn-primary" id="next-btn" onclick="nextQuestion()" disabled>
+        Келесі →
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- RESULT -->
+<div id="result-screen">
+  <div class="result-emoji" id="result-emoji">🎉</div>
+  <div class="result-title" id="result-title">Тест аяқталды!</div>
+  <div class="result-subtitle" id="result-subtitle"></div>
+
+  <div class="score-circle" id="score-circle">
+    <div class="score-inner">
+      <div class="score-pct" id="score-pct">0%</div>
+      <div class="score-label">нәтиже</div>
+    </div>
+  </div>
+
+  <div class="result-stats">
+    <div class="stat-card s">
+      <div class="stat-num" id="res-correct">0</div>
+      <div class="stat-lbl">Дұрыс</div>
+    </div>
+    <div class="stat-card e">
+      <div class="stat-num" id="res-wrong">0</div>
+      <div class="stat-lbl">Қате</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num" id="res-total">0</div>
+      <div class="stat-lbl">Барлығы</div>
+    </div>
+  </div>
+
+  <div class="result-btns">
+    <button class="btn btn-ghost" onclick="showReview()">📋 Қателерді қарау</button>
+    <button class="btn btn-primary" onclick="exitToMenu()">🏠 Менюге</button>
+  </div>
+</div>
+
+<!-- REVIEW -->
+<div id="review-screen">
+  <div class="review-header">
+    <button class="btn btn-ghost" onclick="backToResult()" style="padding:0.5rem 1rem;">← Артқа</button>
+    <h2 style="font-size:1rem;">Жауаптарды қарау</h2>
+  </div>
+  <div class="review-body" id="review-body"></div>
+</div>
+
+<script>
+const QUESTIONS = [{"question": "Windows интерфейсінің элементтерін, сонымен бірге форма, батырмалар, жалаушалар және басқаларды пайдаланатын қолданба -", "answers": [{"letter": "A", "text": "Веб -сервис;"}, {"letter": "B", "text": "Консольды қолданба;"}, {"letter": "C", "text": "Кластар кітапханасы ;"}, {"letter": "D", "text": "Веб -қосымша;"}, {"letter": "E", "text": "Windows- қолданба ;"}], "correct": 0}, {"question": "Консольды қолданба...", "answers": [{"letter": "A", "text": "бұл қолданба, оған қатынау браузер арқылы орындалады;"}, {"letter": "B", "text": "басқа қолданбаларда қолдануға арналған кластарды біріктіреді;"}, {"letter": "C", "text": "“ консольға” шығаруды, яғни командалық процессор терезесіне шығаруды орындайды;"}, {"letter": "D", "text": "әдістері Интернет арқылы шақырылуы мүмкін басқару элементі ;"}, {"letter": "E", "text": "Windows интерфейсінің элементтерін, сонымен бірге форма, батырмалар, жалаушалар және басқаларды пайдаланады;"}], "correct": 0}, {"question": "“ Консольға” шығаруды, яғни командалық процессор терезесіне шығаруды орындайтын қолданба -", "answers": [{"letter": "A", "text": "Windows- қолданба ;"}, {"letter": "B", "text": "Кластар кітапханасы ;"}, {"letter": "C", "text": "Веб -қосымша;"}, {"letter": "D", "text": "Веб -сервис;"}, {"letter": "E", "text": "Консольды қолданба;"}], "correct": 0}, {"question": "Кластар кітапханасы...", "answers": [{"letter": "A", "text": "әдістері Интернет арқылы шақырылуы мүмкін басқару элементі ;"}, {"letter": "B", "text": "бұл қолданба, оған қатынау браузер арқылы орындалады;"}, {"letter": "C", "text": "басқа қолданбаларда қолдануға арналған кластарды біріктіреді;"}, {"letter": "D", "text": "Windows интерфейсінің элементтерін, сонымен бірге форма, батырмалар, жалаушалар және басқаларды пайдаланады;"}, {"letter": "E", "text": "“ консольға” шығаруды, яғни командалық процессор терезесіне шығаруды орындайды;"}], "correct": 0}, {"question": "Басқа қолданбаларда қолдануға арналған кластарды біріктіреді -", "answers": [{"letter": "A", "text": "Веб -сервис;"}, {"letter": "B", "text": "Веб -қосымша;"}, {"letter": "C", "text": "Кластар кітапханасы ;"}, {"letter": "D", "text": "Windows- қолданба ;"}, {"letter": "E", "text": "Консольды қолданба;"}], "correct": 0}, {"question": "Веб -қосымша...", "answers": [{"letter": "A", "text": "оған қатынау браузер арқылы орындалатын қолданба және сұраныс бойынша веб-беттер құрады, оны желі бойынша қолданушыға жібереді ;"}, {"letter": "B", "text": "әдістері Интернет арқылы шақырылуы мүмкін басқару элементі ;"}, {"letter": "C", "text": "Windows интерфейсінің элементтерін, сонымен бірге форма, батырмалар, жалаушалар және басқаларды пайдаланады;"}, {"letter": "D", "text": "“ консольға” шығаруды, яғни командалық процессор терезесіне шығаруды орындайды;"}, {"letter": "E", "text": "басқа қолданбаларда қолдануға арналған кластарды біріктіреді;"}], "correct": 0}, {"question": "Оған қатынау браузер арқылы орындалатын қолданба және сұраныс бойынша веб-беттер құрады, оны желі бойынша қолданушыға жібереді -", "answers": [{"letter": "A", "text": "Веб -сервис;"}, {"letter": "B", "text": "Веб -қосымша;"}, {"letter": "C", "text": "Windows- қолданба ;"}, {"letter": "D", "text": "Консольды қолданба;"}, {"letter": "E", "text": "Кластар кітапханасы ;"}], "correct": 0}, {"question": "Веб -сервис...", "answers": [{"letter": "A", "text": "басқа қолданбаларда қолдануға арналған кластарды біріктіреді;"}, {"letter": "B", "text": "Windows интерфейсінің элементтерін, сонымен бірге форма, батырмалар, жалаушалар және басқаларды пайдаланады;"}, {"letter": "C", "text": "“ консольға” шығаруды, яғни командалық процессор терезесіне шығаруды орындайды;"}, {"letter": "D", "text": "әдістері Интернет арқылы шақырылуы мүмкін басқару элементі ;"}, {"letter": "E", "text": "бұл қолданба, оған қатынау браузер арқылы орындалады;"}], "correct": 0}, {"question": "Әістері Интернет арқылы шақырылуы мүмкін басқару элементі -", "answers": [{"letter": "A", "text": "Консольды қолданба;"}, {"letter": "B", "text": "Windows- қолданба ;"}, {"letter": "C", "text": "Веб -сервис;"}, {"letter": "D", "text": "Кластар кітапханасы ;"}, {"letter": "E", "text": "Веб -қосымша;"}], "correct": 0}, {"question": "Using System директивасы қандай қызмет атқарады?", "answers": [{"letter": "A", "text": "енгізу мен шығарудың стандартты құрылғыларының жиынын білдіреді;"}, {"letter": "B", "text": "жоба үшін өзінің жеке атаулар кеңістігін құрады;"}, {"letter": "C", "text": "түсініктемелер болып табылады және программа мәтінін құжаттауға тағайындалған;"}, {"letter": "D", "text": "өзіндік атауы бар тілдің ең кіші бірлігін білдіреді;"}, {"letter": "E", "text": "стандартты кластар атауларын пайдалануға рұқсат береді;"}], "correct": 0}, {"question": "namespace кілтті сөзі ...", "answers": [{"letter": "A", "text": "жоба үшін өзінің жеке атаулар кеңістігін құрады;"}, {"letter": "B", "text": "түсініктемелер болып табылады және программа мәтінін құжаттауға тағайындалған;"}, {"letter": "C", "text": "өзіндік атауы бар тілдің ең кіші бірлігін білдіреді;"}, {"letter": "D", "text": "енгізу мен шығарудың стандартты құрылғыларының жиынын білдіреді;"}, {"letter": "E", "text": "стандартты кластар атауларын пайдалануға рұқсат береді;"}], "correct": 0}, {"question": "// белгісі нені білдіреді?", "answers": [{"letter": "A", "text": "жоба үшін өзінің жеке атаулар кеңістігін құрады;"}, {"letter": "B", "text": "өзіндік атауы бар тілдің ең кіші бірлігін білдіреді;"}, {"letter": "C", "text": "енгізу мен шығарудың стандартты құрылғыларының жиынын білдіреді;"}, {"letter": "D", "text": "стандартты кластар атауларын пайдалануға рұқсат береді;"}, {"letter": "E", "text": "түсініктемелер болып табылады және программа мәтінін құжаттауға тағайындалған;"}], "correct": 0}, {"question": "Лексема -", "answers": [{"letter": "A", "text": "өзіндік атауы бар тілдің ең кіші бірлігін білдіреді;"}, {"letter": "B", "text": "енгізу мен шығарудың стандартты құрылғыларының жиынын білдіреді;"}, {"letter": "C", "text": "стандартты кластар атауларын пайдалануға рұқсат береді;"}, {"letter": "D", "text": "жоба үшін өзінің жеке атаулар кеңістігін құрады;"}, {"letter": "E", "text": "түсініктемелер болып табылады және программа мәтінін құжаттауға тағайындалған;"}], "correct": 0}, {"question": "Консоль -", "answers": [{"letter": "A", "text": "өзіндік атауы бар тілдің ең кіші бірлігін білдіреді;"}, {"letter": "B", "text": "стандартты кластар атауларын пайдалануға рұқсат береді;"}, {"letter": "C", "text": "жоба үшін өзінің жеке атаулар кеңістігін құрады;"}, {"letter": "D", "text": "түсініктемелер болып табылады және программа мәтінін құжаттауға тағайындалған;"}, {"letter": "E", "text": "енгізу мен шығарудың стандартты құрылғыларының жиынын білдіреді;"}], "correct": 0}, {"question": "С# тілінде массивтің элементтері қандай жақшаға алынып жазылады?", "answers": [{"letter": "A", "text": "фигуралы жақшаға “{}”;"}, {"letter": "B", "text": "тік жақшаға “[]”;"}, {"letter": "C", "text": "жай жақшаға “()”;"}, {"letter": "D", "text": "жақшаға алынбайды;"}, {"letter": "E", "text": "қос нүкте арасына алынып жазылады;"}], "correct": 0}, {"question": "С# тілінде блок қандай жақшаның ішіне жазылады?", "answers": [{"letter": "A", "text": "begіn..end операторлық жақшаның"}, {"letter": "B", "text": "жай жақшаның “()”;"}, {"letter": "C", "text": "тік жақшаның “[ ]”;"}, {"letter": "D", "text": "фигуралы жақшаның “{}”;"}, {"letter": "E", "text": "циклдың үшінде жазылған операторлар тізбегі"}], "correct": 0}, {"question": "С# тілінде лексема дегеніміз не?", "answers": [{"letter": "A", "text": "мәліметтерді сипаттау үшін қызмет ететін айнымалылар"}, {"letter": "B", "text": "қандайда бір мәнді есептеу ережесін беретін ережелер"}, {"letter": "C", "text": "қандайда бір әрекеттің аяқталған сипаттамасын беретін символдар"}, {"letter": "D", "text": "өзіндік аты бар тілдің минималды бірлігі"}, {"letter": "E", "text": "программалық объектінің аты"}], "correct": 0}, {"question": "С# тілінде түсініктемені жазу үшін қандай символ пайдаланылады:", "answers": [{"letter": "A", "text": "//"}, {"letter": "B", "text": "{ }"}, {"letter": "C", "text": "/- - /"}, {"letter": "D", "text": "/ /, { }, #"}, {"letter": "E", "text": "{ }, ' ', &"}], "correct": 0}, {"question": "С# тілінде көп жолды түсініктемені жазу үшін қандай символ пайдаланылады:", "answers": [{"letter": "A", "text": "{ }"}, {"letter": "B", "text": "/* * /"}, {"letter": "C", "text": "##"}, {"letter": "D", "text": "/ /, { }, #"}, {"letter": "E", "text": "{ }, ' ', &"}], "correct": 0}, {"question": "Келесі типтердің қайсысы бүтін типке жатады?", "answers": [{"letter": "A", "text": "int , char , wchar_t, bool, float, Strіng"}, {"letter": "B", "text": "Boolean, ByteBool, LongBool"}, {"letter": "C", "text": "Real48, Sіngle, Double, Extended, Comp, Currency, Real"}, {"letter": "D", "text": "int , byte, sbyte, short, long"}, {"letter": "E", "text": "Longіnt, Іnt64, Word, Longword, Іnteger"}], "correct": 0}, {"question": "Келесі типтердің қайсысы логикалық типке жатады ?", "answers": [{"letter": "A", "text": "bool"}, {"letter": "B", "text": "Boolean, ByteBool, LongBool"}, {"letter": "C", "text": "Sіngle, Double, Extended, Real"}, {"letter": "D", "text": "ShortStrіng, AnsіStrіng, WіdeStrіng, Strіng"}, {"letter": "E", "text": "WіdeChar"}], "correct": 0}, {"question": "Келесі типтердің қайсысы мәліметтедің символдық типіне жатады ?", "answers": [{"letter": "A", "text": "char"}, {"letter": "B", "text": "AnsіChar, WіdeChar, Char"}, {"letter": "C", "text": "Boolean, ByteBool, LongBool"}, {"letter": "D", "text": "int , char , wchar_t, bool, float, double"}, {"letter": "E", "text": "ShortStrіng, AnsіStrіng, WіdeStrіng, Strіng"}], "correct": 0}, {"question": "Келесі типтердің қайсысы С#-те мәліметтердің нақты типіне жатады ?", "answers": [{"letter": "A", "text": "Real48, Sіngle, Double, Extended, Comp, Currency, Real"}, {"letter": "B", "text": "float, double"}, {"letter": "C", "text": "Word, Longword, Cardіnal"}, {"letter": "D", "text": "ShortStrіng, AnsіStrіng, WіdeStrіng, Strіng"}, {"letter": "E", "text": "int , char , wchar_t, bool, float, double"}], "correct": 0}, {"question": "Келесі типтердің қайсысы С#-те мәліметтердің қаржылық типіне жатады ?", "answers": [{"letter": "A", "text": "int , char , wchar_t, bool, float, double"}, {"letter": "B", "text": "float, double"}, {"letter": "C", "text": "Word, Longword, Cardіnal"}, {"letter": "D", "text": "ShortStrіng, AnsіStrіng, WіdeStrіng, Strіng"}, {"letter": "E", "text": "decimal"}], "correct": 0}, {"question": "С# тілінде !, -, +,- -x,++x амалдары төмендегі амалдардың қайсысына жатады?", "answers": [{"letter": "A", "text": "тернарлыға;"}, {"letter": "B", "text": "бинарлыға;"}, {"letter": "C", "text": "унарлыға;"}, {"letter": "D", "text": "логикалық;"}, {"letter": "E", "text": "қатынас;"}], "correct": 0}, {"question": "Программаны жөндеу барысында блоктарды уақытша ала тұруда қандай символ пайдалануды", "answers": [{"letter": "A", "text": "{ }, ' ', &"}, {"letter": "B", "text": "/ /"}, {"letter": "C", "text": "/ /, { }, #"}, {"letter": "D", "text": "&, []"}, {"letter": "E", "text": "/* */"}], "correct": 0}, {"question": "Белгілі бір типтегі мәліметтер сақталатын жадының аты бар аймағы қалай аталады?", "answers": [{"letter": "A", "text": "Модификаторлар"}, {"letter": "B", "text": "Тұрақтылар"}, {"letter": "C", "text": "Айнымалылар"}, {"letter": "D", "text": "Қызметші сөздер"}, {"letter": "E", "text": "басқарушы тізбектер"}], "correct": 0}, {"question": "Массив дегеніміз…", "answers": [{"letter": "A", "text": "сыртқы құрылғыда орналасқан біртипті элементтердің ат берілген тізбегі"}, {"letter": "B", "text": "алдын-ала анықталынған мәндер жиынынан таңдап алынған элементтер жиыны"}, {"letter": "C", "text": "мәліметтердің басқа типтерінің элементтерінің белгіленген санын біріктіру"}, {"letter": "D", "text": "жалпы бір атаумен аталатын, рет бойынша индекстелген бір типті элементтердің жиыны"}, {"letter": "E", "text": "мәліметтердің құрамын, амалдар және мәлімттермен амалдар орындау ретін анықтайтын конструкция"}], "correct": 0}, {"question": "*х*6-ті есептеудің дұрыс нұсқасын көрсетіңіз", "answers": [{"letter": "A", "text": "EXP(6*LN(X));"}, {"letter": "B", "text": "SQR(SQR(X). SQR(X));"}, {"letter": "C", "text": "SQR(SQR(X));"}, {"letter": "D", "text": "pow(x,6);"}, {"letter": "E", "text": "Pow(6,x);"}], "correct": 0}, {"question": "Өрнектің мәнін есептеу керек.* 30 % 4 - 5 % 2*", "answers": [{"letter": "A", "text": "0.5;"}, {"letter": "B", "text": "3;"}, {"letter": "C", "text": "1;"}, {"letter": "D", "text": "4;"}, {"letter": "E", "text": "6;"}], "correct": 0}, {"question": "Өрнектің мәнін есептеу керек.*26 % 4 - 5 % 2*", "answers": [{"letter": "A", "text": "3;"}, {"letter": "B", "text": "1;"}, {"letter": "C", "text": "0.5;"}, {"letter": "D", "text": "4;"}, {"letter": "E", "text": "6;"}], "correct": 0}, {"question": "Өрнектің мәнін есептеу керек.*34 % 4 - 5 % 2*", "answers": [{"letter": "A", "text": "3;"}, {"letter": "B", "text": "1;"}, {"letter": "C", "text": "0.5;"}, {"letter": "D", "text": "4;"}, {"letter": "E", "text": "6;"}], "correct": 0}, {"question": "Өрнектің мәнін есептеу керек.*25 % 4+ 5 % 2*", "answers": [{"letter": "A", "text": "6;"}, {"letter": "B", "text": "3;"}, {"letter": "C", "text": "0.5;"}, {"letter": "D", "text": "4;"}, {"letter": "E", "text": "2;"}], "correct": 0}, {"question": "2*х-у+1.7 өрнегіндегі тұрақты шамаларыдыанықта.", "answers": [{"letter": "A", "text": "2х- у"}, {"letter": "B", "text": "2х"}, {"letter": "C", "text": "1,7"}, {"letter": "D", "text": "2"}, {"letter": "E", "text": "2; 1.7"}], "correct": 0}, {"question": "Тілдіңқызметшісөзінежатпайтынын көрсетіңдер", "answers": [{"letter": "A", "text": "float"}, {"letter": "B", "text": "if"}, {"letter": "C", "text": "struct"}, {"letter": "D", "text": "break"}, {"letter": "E", "text": "sіnx"}], "correct": 0}, {"question": "Мынаөрнектің 6* 10 % 8 нәтижесінтабыңдар.", "answers": [{"letter": "A", "text": "10"}, {"letter": "B", "text": "4"}, {"letter": "C", "text": "12"}, {"letter": "D", "text": "2"}, {"letter": "E", "text": "0"}], "correct": 0}, {"question": "DivRem(15,7)нәтижесінтабыңыздар?", "answers": [{"letter": "A", "text": "2, 1"}, {"letter": "B", "text": "4,1"}, {"letter": "C", "text": "10,7"}, {"letter": "D", "text": "15, 7"}, {"letter": "E", "text": "10, 15"}], "correct": 0}, {"question": "DivRem(25,10)нәтижесінтабыңыздар?", "answers": [{"letter": "A", "text": "5,25"}, {"letter": "B", "text": "2, 5"}, {"letter": "C", "text": "10,25"}, {"letter": "D", "text": "10,2"}, {"letter": "E", "text": "10, 5"}], "correct": 0}, {"question": "DivRem(40,9)нәтижесінтабыңыздар?", "answers": [{"letter": "A", "text": "40,9"}, {"letter": "B", "text": "40,4"}, {"letter": "C", "text": "4, 4"}, {"letter": "D", "text": "10,2"}, {"letter": "E", "text": "10, 5"}], "correct": 0}, {"question": "Мына өрнектің 3* 10 % 8 нәтижесін табыңдар.", "answers": [{"letter": "A", "text": "10"}, {"letter": "B", "text": "4"}, {"letter": "C", "text": "6"}, {"letter": "D", "text": "2"}, {"letter": "E", "text": "0"}], "correct": 0}, {"question": "a=-5; b=-3; іf (a<b)max=b; else max= a; max-тіңмәнінегетең.", "answers": [{"letter": "A", "text": "-3"}, {"letter": "B", "text": "-5"}, {"letter": "C", "text": "max"}, {"letter": "D", "text": "0"}, {"letter": "E", "text": "mіn"}], "correct": 0}, {"question": "Мына өрнектің 5 % 3 +2 нәтижесін табыңдар.", "answers": [{"letter": "A", "text": "11"}, {"letter": "B", "text": "5"}, {"letter": "C", "text": "4"}, {"letter": "D", "text": "2"}, {"letter": "E", "text": "0"}], "correct": 0}, {"question": "Мына өрнектің 10 % 3 +2 нәтижесін табыңдар.", "answers": [{"letter": "A", "text": "3"}, {"letter": "B", "text": "5"}, {"letter": "C", "text": "11"}, {"letter": "D", "text": "2"}, {"letter": "E", "text": "0"}], "correct": 0}, {"question": "Мына өрнектің 25 % 3 +2 нәтижесін табыңдар.", "answers": [{"letter": "A", "text": "5"}, {"letter": "B", "text": "3"}, {"letter": "C", "text": "11"}, {"letter": "D", "text": "2"}, {"letter": "E", "text": "0"}], "correct": 0}, {"question": "Шартсыз көшу операторын көрсетіңіз", "answers": [{"letter": "A", "text": "Whіle"}, {"letter": "B", "text": "Іf шарт then 1-оператор else 2 - оператор"}, {"letter": "C", "text": "switch"}, {"letter": "D", "text": "Case"}, {"letter": "E", "text": "goto"}], "correct": 0}, {"question": "do -while операторының шарты бірден орындалса, онда циклдың денесі қанша рет орындалады?", "answers": [{"letter": "A", "text": "n-рет"}, {"letter": "B", "text": "орындалмайды"}, {"letter": "C", "text": "1 рет"}, {"letter": "D", "text": "2 рет"}, {"letter": "E", "text": "n-1 рет"}], "correct": 0}, {"question": "Дербес айнымалы қай кезде белгілі болады", "answers": [{"letter": "A", "text": "тармақталу операторында ғана"}, {"letter": "B", "text": "программаның барлық бөлігінде"}, {"letter": "C", "text": "өзі анықталған функцияның ішінде ғана"}, {"letter": "D", "text": "массивті сипаттағанда"}, {"letter": "E", "text": "таңдау операторының ішінде"}], "correct": 0}, {"question": "Жалпы айнымалы қай кезде белгілі болады", "answers": [{"letter": "A", "text": "тармақталу операторында ғана"}, {"letter": "B", "text": "таңдау операторының ішінде"}, {"letter": "C", "text": "өзі анықталған функцияның ішінде ғана"}, {"letter": "D", "text": "программаның барлық бөлігінде"}, {"letter": "E", "text": "массивті сипаттағанда"}], "correct": 0}, {"question": "a=19; b=8 болса , x=a % b орындалғанда х-тің мәні неге тең?", "answers": [{"letter": "A", "text": "1"}, {"letter": "B", "text": "2"}, {"letter": "C", "text": "0"}, {"letter": "D", "text": "3"}, {"letter": "E", "text": "4"}], "correct": 0}, {"question": "Функция қайтаратын аргументтің мәнін алатын дербес айнымалы қалай аталады", "answers": [{"letter": "A", "text": "формалды параметр"}, {"letter": "B", "text": "прототип"}, {"letter": "C", "text": "дербес параметр"}, {"letter": "D", "text": "жалпы параметр"}, {"letter": "E", "text": "параметр"}], "correct": 0}, {"question": "Қатынас амалдары", "answers": [{"letter": "A", "text": "#, --, *, /, +, -"}, {"letter": "B", "text": "&&, ||, !"}, {"letter": "C", "text": "&,%"}, {"letter": "D", "text": "= =, !=, >, <, >=, <="}, {"letter": "E", "text": "<<=, >>=, +=, *="}], "correct": 0}, {"question": "Логикалық амалдар", "answers": [{"letter": "A", "text": "<<=, >>=, +=, *="}, {"letter": "B", "text": "&&, ||, !"}, {"letter": "C", "text": "&,%"}, {"letter": "D", "text": "#, --, *, /, +, -"}, {"letter": "E", "text": "= =, !=, >, <, >=, <="}], "correct": 0}, {"question": "Төмендегілердің қайсысы идентификатор бола алмайды.", "answers": [{"letter": "A", "text": "5A"}, {"letter": "B", "text": "Esep1"}, {"letter": "C", "text": "хо"}, {"letter": "D", "text": "а3"}, {"letter": "E", "text": "Summa"}], "correct": 0}, {"question": "Егер a=2; b=4*a; x=(a+b)/a*(b-a); болса х - тің мәні неге тең.", "answers": [{"letter": "A", "text": "30"}, {"letter": "B", "text": "-1.37"}, {"letter": "C", "text": "0.41"}, {"letter": "D", "text": "12"}, {"letter": "E", "text": "32"}], "correct": 0}, {"question": "a=18 ; b=9; x=a % b болса, х-тің мәні неге тең?", "answers": [{"letter": "A", "text": "1"}, {"letter": "B", "text": "18"}, {"letter": "C", "text": "6"}, {"letter": "D", "text": "0"}, {"letter": "E", "text": "4"}], "correct": 0}, {"question": "Қай өрнек дұрыс жазылған?", "answers": [{"letter": "A", "text": "x=b^2"}, {"letter": "B", "text": "5=a-b"}, {"letter": "C", "text": "x=3.74*a"}, {"letter": "D", "text": "y=7,2*a"}, {"letter": "E", "text": "x1= 74(a-1)"}], "correct": 0}, {"question": "С# тілінде тармақталу операторының толық жазылу формасын көрсетіңіз?", "answers": [{"letter": "A", "text": "іf(шарт) оператор1; else оператор2;"}, {"letter": "B", "text": "for - do"}, {"letter": "C", "text": "іf - then-else"}, {"letter": "D", "text": "while (өрнек) нұсқау;"}, {"letter": "E", "text": "do-while"}], "correct": 0}, {"question": "С# тілінде тармақталу операторының қысқа жазылу формасын көрсетіңіз?", "answers": [{"letter": "A", "text": "іf(шарт) оператор1; else оператор2;"}, {"letter": "B", "text": "for - do"}, {"letter": "C", "text": "іf - then-else"}, {"letter": "D", "text": "while(өрнек) нұсқау;"}, {"letter": "E", "text": "іf(шарт) оператор;"}], "correct": 0}, {"question": "Таңдау операторына қайсысы жатады?", "answers": [{"letter": "A", "text": "switch (өрнек)"}, {"letter": "B", "text": "for - do"}, {"letter": "C", "text": "while (өрнек) нұсқау;"}, {"letter": "D", "text": "do-while"}, {"letter": "E", "text": "іf - then-else"}], "correct": 0}, {"question": "Әзір қайталану операторын көрсетіңіз?", "answers": [{"letter": "A", "text": "while (шарт) нұсқау;"}, {"letter": "B", "text": "іf (шарт) оператор1; else оператор2;"}, {"letter": "C", "text": "іf - then-else"}, {"letter": "D", "text": "do-while"}, {"letter": "E", "text": "for - do"}], "correct": 0}, {"question": "Дейін қайталану операторын көрсетіңіз?", "answers": [{"letter": "A", "text": "іf (шарт) оператор1; else оператор2;"}, {"letter": "B", "text": "do нұсқау while (шарт)"}, {"letter": "C", "text": "for - do"}, {"letter": "D", "text": "іf - then-else"}, {"letter": "E", "text": "while (өрнек) нұсқау;"}], "correct": 0}, {"question": "С# тілінде параметрлі қайталану операторының жазылуын көрсетіңіз?", "answers": [{"letter": "A", "text": "for i:=1 to n do"}, {"letter": "B", "text": "for(инициализация; өрнек ; модификация)"}, {"letter": "C", "text": "for(инкремент; инициализация; өрнек;)"}, {"letter": "D", "text": "while (өрнек) нұсқау;"}, {"letter": "E", "text": "do-while"}], "correct": 0}, {"question": "Ақиқат немесе жалған мәндерін қабылдайтын мәліметтер типі", "answers": [{"letter": "A", "text": "нақты"}, {"letter": "B", "text": "бүтін"}, {"letter": "C", "text": "жолдық"}, {"letter": "D", "text": "массив"}, {"letter": "E", "text": "логикалық"}], "correct": 0}, {"question": "Екі санды көбейтуге арналған әдіс?", "answers": [{"letter": "A", "text": "Celling(x)"}, {"letter": "B", "text": "BigMul(x,y)"}, {"letter": "C", "text": "DivRem(x,y)"}, {"letter": "D", "text": "Floor(x)"}, {"letter": "E", "text": "Round(x)"}], "correct": 0}, {"question": "Санды үлкен бүтінге дейін дөңгелектеуге арналған әдіс?", "answers": [{"letter": "A", "text": "BigMul(x,y)"}, {"letter": "B", "text": "Celling(x)"}, {"letter": "C", "text": "DivRem(x,y)"}, {"letter": "D", "text": "Floor(x)"}, {"letter": "E", "text": "Round(x)"}], "correct": 0}, {"question": "Санды кіші бүтінге дейін дөңгелектеуге арналған әдіс?", "answers": [{"letter": "A", "text": "BigMul(x,y)"}, {"letter": "B", "text": "Celling(x)"}, {"letter": "C", "text": "Floor(x)"}, {"letter": "D", "text": "DivRem(x,y)"}, {"letter": "E", "text": "Round(x)"}], "correct": 0}, {"question": "Берілген бүтін сандардың бүтінін және қалдығын анықтайтын әдіс?", "answers": [{"letter": "A", "text": "Floor(x)"}, {"letter": "B", "text": "DivRem(x,y)"}, {"letter": "C", "text": "Celling(x)"}, {"letter": "D", "text": "BigMul(x,y)"}, {"letter": "E", "text": "Round(x)"}], "correct": 0}, {"question": "Санды бүтінге дейін дөңгелектеуге арналған әдіс?", "answers": [{"letter": "A", "text": "Floor(x)"}, {"letter": "B", "text": "DivRem(x,y)"}, {"letter": "C", "text": "Round(x)"}, {"letter": "D", "text": "Celling(x)"}, {"letter": "E", "text": "BigMul(x,y)"}], "correct": 0}, {"question": "Floor(x) функциясының қызметі қандай?", "answers": [{"letter": "A", "text": "Санды кіші бүтінге дейін дөңгелектеуге арналған әдіс"}, {"letter": "B", "text": "Санды үлкен бүтінге дейін дөңгелектеуге арналған әдіс"}, {"letter": "C", "text": "Берілген бүтін сандардың бүтінін және қалдығын анықтайтын әдіс"}, {"letter": "D", "text": "Санды бүтінге дейін дөңгелектеуге арналған әдіс"}, {"letter": "E", "text": "Екі санды көбейтуге арналған әдіс"}], "correct": 0}, {"question": "Celling(x) функциясының қызметі қандай?", "answers": [{"letter": "A", "text": "Санды үлкен бүтінге дейін дөңгелектеуге арналған әдіс"}, {"letter": "B", "text": "Санды кіші бүтінге дейін дөңгелектеуге арналған әдіс"}, {"letter": "C", "text": "Берілген бүтін сандардың бүтінін және қалдығын анықтайтын әдіс"}, {"letter": "D", "text": "Санды бүтінге дейін дөңгелектеуге арналған әдіс"}, {"letter": "E", "text": "Екі санды көбейтуге арналған әдіс"}], "correct": 0}, {"question": "BigMul(x,y)функциясының қызметі қандай?", "answers": [{"letter": "A", "text": "Санды үлкен бүтінге дейін дөңгелектеуге арналған әдіс"}, {"letter": "B", "text": "Санды кіші бүтінге дейін дөңгелектеуге арналған әдіс"}, {"letter": "C", "text": "Екі санды көбейтуге арналған әдіс"}, {"letter": "D", "text": "Берілген бүтін сандардың бүтінін және қалдығын анықтайтын әдіс"}, {"letter": "E", "text": "Санды бүтінге дейін дөңгелектеуге арналған әдіс"}], "correct": 0}, {"question": "DivRem(x,y)функциясының қызметі қандай?", "answers": [{"letter": "A", "text": "Санды үлкен бүтінге дейін дөңгелектеуге арналған әдіс"}, {"letter": "B", "text": "Санды кіші бүтінге дейін дөңгелектеуге арналған әдіс"}, {"letter": "C", "text": "Берілген бүтін сандардың бүтінін және қалдығын анықтайтын әдіс"}, {"letter": "D", "text": "Санды бүтінге дейін дөңгелектеуге арналған әдіс"}, {"letter": "E", "text": "Екі санды көбейтуге арналған әдіс"}], "correct": 0}, {"question": "Round(x)функциясының қызметі қандай?", "answers": [{"letter": "A", "text": "Берілген бүтін сандардың бүтінін және қалдығын анықтайтын әдіс"}, {"letter": "B", "text": "Санды кіші бүтінге дейін дөңгелектеуге арналған әдіс"}, {"letter": "C", "text": "Санды үлкен бүтінге дейін дөңгелектеуге арналған әдіс"}, {"letter": "D", "text": "Санды бүтінге дейін дөңгелектеуге арналған әдіс"}, {"letter": "E", "text": "Екі санды көбейтуге арналған әдіс"}], "correct": 0}, {"question": "9/5f бөліндісіндегі f символы нені көрсетеді?", "answers": [{"letter": "A", "text": "айнымалы типін"}, {"letter": "B", "text": "тұрақты типін"}, {"letter": "C", "text": "бүтін мәнді"}, {"letter": "D", "text": "қалдық мәнді"}, {"letter": "E", "text": "нәтижені"}], "correct": 0}, {"question": "9/5f бөліндісіндегі тұрақты қандай типті?", "answers": [{"letter": "A", "text": "long"}, {"letter": "B", "text": "short"}, {"letter": "C", "text": "int"}, {"letter": "D", "text": "float"}, {"letter": "E", "text": "byte"}], "correct": 0}, {"question": "Инкрементация қандай амалды орындайды?", "answers": [{"letter": "A", "text": "санды дәрежеге шығару"}, {"letter": "B", "text": "операнданы бірге кемітеді"}, {"letter": "C", "text": "бірнеше объектілерді біреуге біріктіру"}, {"letter": "D", "text": "операнданы бірге арттырады"}, {"letter": "E", "text": "квадрат түбірін анықтау"}], "correct": 0}, {"question": "Декрементация қандай амалды орындайды?", "answers": [{"letter": "A", "text": "операнданы бірге арттырады"}, {"letter": "B", "text": "операнданы бірге кемітеді"}, {"letter": "C", "text": "бірнеше объектілерді біреуге біріктіру"}, {"letter": "D", "text": "санды дәрежеге шығару"}, {"letter": "E", "text": "квадрат түбірін анықтау"}], "correct": 0}, {"question": "Санды дәрежеге шығару үшін қолданылатын функция", "answers": [{"letter": "A", "text": "sqrt([сан]);"}, {"letter": "B", "text": "pow([дәреже], [сан]);"}, {"letter": "C", "text": "sqrt([сан], [дәреже]);"}, {"letter": "D", "text": "sqrt([дәреже], [сан]);"}, {"letter": "E", "text": "pow([сан], [дәреже]);"}], "correct": 0}, {"question": "pow([сан], [дәреже]) функциясының қызметі", "answers": [{"letter": "A", "text": "санды дәрежеге шығару"}, {"letter": "B", "text": "санның квадрат түбірін алу"}, {"letter": "C", "text": "санды бірге арттыру"}, {"letter": "D", "text": "санды бірге кеміту"}, {"letter": "E", "text": "бірнеше объектілерді біреуге біріктіру"}], "correct": 0}, {"question": "Санның квадрат түбірін алу үшін қолданылатын функция", "answers": [{"letter": "A", "text": "sqrt([сан], [дәреже]);"}, {"letter": "B", "text": "pow([дәреже], [сан]);"}, {"letter": "C", "text": "sqrt([сан]);"}, {"letter": "D", "text": "sqrt([дәреже], [сан]);"}, {"letter": "E", "text": "pow([сан], [дәреже]);"}], "correct": 0}, {"question": "sqrt([сан]) функциясының қызметі", "answers": [{"letter": "A", "text": "санды дәрежеге шығару"}, {"letter": "B", "text": "санның квадрат түбірін алу"}, {"letter": "C", "text": "санды бірге арттыру"}, {"letter": "D", "text": "санды бірге кеміту"}, {"letter": "E", "text": "бірнеше объектілерді біреуге біріктіру"}], "correct": 0}, {"question": "Қанша қайталау орындау керектігі белгілі болғанда орындалатын цикл операторын көрсетіңіз.", "answers": [{"letter": "A", "text": "«if-else»"}, {"letter": "B", "text": "«break»"}, {"letter": "C", "text": "«for»"}, {"letter": "D", "text": "«while»"}, {"letter": "E", "text": "«do while»"}], "correct": 0}, {"question": "Шарт ақиқат болғанша орындалатын цикл операторын көрсетіңіз.", "answers": [{"letter": "A", "text": "«for»"}, {"letter": "B", "text": "«break»"}, {"letter": "C", "text": "«if-else»"}, {"letter": "D", "text": "«while»"}, {"letter": "E", "text": "«do while»"}], "correct": 0}, {"question": "Алдымен код блогы орындалып, одан кейін шарт тексерілетін цикл операторын көрсетіңіз.", "answers": [{"letter": "A", "text": "«do while»"}, {"letter": "B", "text": "«break»"}, {"letter": "C", "text": "«if-else»"}, {"letter": "D", "text": "«for»"}, {"letter": "E", "text": "«while»"}], "correct": 0}, {"question": "Жадта бірінен кейін бірі орналасатын биртипті деректер жиыны", "answers": [{"letter": "A", "text": "жол"}, {"letter": "B", "text": "файл"}, {"letter": "C", "text": "массив"}, {"letter": "D", "text": "регистр"}, {"letter": "E", "text": "жиын"}], "correct": 0}, {"question": "Кез-келген циклдан алдын-ала шығу операторы", "answers": [{"letter": "A", "text": "break"}, {"letter": "B", "text": "for"}, {"letter": "C", "text": "switch"}, {"letter": "D", "text": "return"}, {"letter": "E", "text": "continue"}], "correct": 0}, {"question": "break операторының қызметі қандай?", "answers": [{"letter": "A", "text": "алдыңғы итерацияны аяқтамай келесіге өту операторы"}, {"letter": "B", "text": "қанша қайталау орындау керектігі белгілі болғанда орындалатын цикл операторы"}, {"letter": "C", "text": "алдымен код блогы орындалып, одан кейін шарт тексерілетін цикл операторы"}, {"letter": "D", "text": "шарт ақиқат болғанша орындалатын цикл операторы"}, {"letter": "E", "text": "кез-келген циклдан алдын-ала шығу операторы"}], "correct": 0}, {"question": "Алдыңғы итерацияны аяқтамай келесіге өту операторы", "answers": [{"letter": "A", "text": "return"}, {"letter": "B", "text": "for"}, {"letter": "C", "text": "switch"}, {"letter": "D", "text": "continue"}, {"letter": "E", "text": "break"}], "correct": 0}, {"question": "continue операторының қызметі қандай?", "answers": [{"letter": "A", "text": "кез-келген циклдан алдын-ала шығу операторы"}, {"letter": "B", "text": "қанша қайталау орындау керектігі белгілі болғанда орындалатын цикл операторы"}, {"letter": "C", "text": "алдымен код блогы орындалып, одан кейін шарт тексерілетін цикл операторы"}, {"letter": "D", "text": "шарт ақиқат болғанша орындалатын цикл операторы"}, {"letter": "E", "text": "алдыңғы итерацияны аяқтамай келесіге өту операторы"}], "correct": 0}, {"question": "Қызметші сөздер дегеніміз не?", "answers": [{"letter": "A", "text": "алдын-ала мағынасы анықталған, тілдің құрамының бір бөлігі"}, {"letter": "B", "text": "тұрақтыларды, айнымалыларды, процедураларды сипаттау"}, {"letter": "C", "text": "жинақталған символдар тізбегі."}, {"letter": "D", "text": "реттелген жолдар тізбегі"}, {"letter": "E", "text": "қолданушының идентификаторы"}], "correct": 0}, {"question": "(а+1)1/3 математикалық өрнегі С# тілінде қалай жазылады?", "answers": [{"letter": "A", "text": "Math.Pow(a+1,1/3)"}, {"letter": "B", "text": "exp(1/3*ln(a+1));"}, {"letter": "C", "text": "exp(a+1)*ln(1/3));"}, {"letter": "D", "text": "1/3*ln(a+1);"}, {"letter": "E", "text": "pow(1/3, a+1)"}], "correct": 0}, {"question": "sin2x+cosx2математикалық өрнегі C# тілінде қалай жазылады?", "answers": [{"letter": "A", "text": "sin (pow(x), 2)+ cos(pow(x),2)"}, {"letter": "B", "text": "sin(sqr(x))+sqr(cos(x));"}, {"letter": "C", "text": "Math.Pow(Sin(x), 2)+Math.Pow(Cos(x),2)"}, {"letter": "D", "text": "pow(sin(x), 2)+pow(cos(x),2)"}, {"letter": "E", "text": "pow*(sin*(x), 2)+pow*(cos*(x),2)"}], "correct": 0}, {"question": "goto операторының қызметі-", "answers": [{"letter": "A", "text": "функция мәнін қайтарады"}, {"letter": "B", "text": "циклдан дереу шығуды қамтамасыз етеді"}, {"letter": "C", "text": "дереу циклдың келесі итерациясына өтуге мүмкіндік береді"}, {"letter": "D", "text": "функцияның орындалуын аяқтайды"}, {"letter": "E", "text": "басқаруды белгіленген операторға жібереді"}], "correct": 0}, {"question": "break операторының қызметі-", "answers": [{"letter": "A", "text": "басқаруды белгіленген операторға жібереді"}, {"letter": "B", "text": "функция мәнін қайтарады"}, {"letter": "C", "text": "функцияның орындалуын аяқтайды"}, {"letter": "D", "text": "дереу циклдың келесі итерациясына өтуге мүмкіндік береді"}, {"letter": "E", "text": "циклдан дереу шығуды қамтамасыз етеді"}], "correct": 0}, {"question": "return операторының қызметі-", "answers": [{"letter": "A", "text": "басқаруды белгіленген операторға жібереді"}, {"letter": "B", "text": "циклдан дереу шығуды қамтамасыз етеді"}, {"letter": "C", "text": "функцияның орындалуын аяқтайды және функция мәнін қайтарады"}, {"letter": "D", "text": "программадағы негізгі функция"}, {"letter": "E", "text": "дереу циклдың келесі итерациясына өтуге мүмкіндік береді"}], "correct": 0}, {"question": "continue операторының қызметі-", "answers": [{"letter": "A", "text": "функцияның орындалуын аяқтайды"}, {"letter": "B", "text": "циклдан дереу шығуды қамтамасыз етеді"}, {"letter": "C", "text": "функция мәнін қайтарады"}, {"letter": "D", "text": "функция мәнін қайтарады"}, {"letter": "E", "text": "басқаруды белгіленген операторға жібереді"}], "correct": 0}, {"question": "Мән қайтармайтын функция", "answers": [{"letter": "A", "text": "log"}, {"letter": "B", "text": "main"}, {"letter": "C", "text": "sqrt"}, {"letter": "D", "text": "void"}, {"letter": "E", "text": "pow"}], "correct": 0}, {"question": "С# те мына типтердің: а)float; ә)short int; б)int; в)long double; г)char, ғ)real, д)bool, е)wchar_ t; ж)long real з)long int; и)double; к)long float; л)signed int, м)unsigned bool қайсылары нақты типтерге жатады?", "answers": [{"letter": "A", "text": "а, и"}, {"letter": "B", "text": "а, ғ, е"}, {"letter": "C", "text": "а, ғ, е"}, {"letter": "D", "text": "ә, ғ, е"}, {"letter": "E", "text": "ғ, е, д"}], "correct": 0}, {"question": "С# те мына типтердің: а)float; ә)sbyte; б)int; в)long double; г)char, ғ)real, д)bool, е)wchar_ t; ж) long real з)long ; и)double; к)long float; л)byte, м)unsigned bool қайсылары бүтін типтерге жатады?", "answers": [{"letter": "A", "text": "ә, а, в, е"}, {"letter": "B", "text": "ә, ғ, е, л"}, {"letter": "C", "text": "ә, б, з, л"}, {"letter": "D", "text": "ә, ғ, е, з"}, {"letter": "E", "text": "ғ, е, д, и"}], "correct": 0}, {"question": "С# те мына типтердің: а)float; ә)short int; б)int; в)long double; г)char, ғ)real, д)bool, е)wchar_ t; ж) long real з)long int; и)double; к)long float; л)signed int, м)unsigned bool қайсылары символдық типтерге жатады?", "answers": [{"letter": "A", "text": "ә, а"}, {"letter": "B", "text": "ә, ғ"}, {"letter": "C", "text": "г"}, {"letter": "D", "text": "ә, ғ"}, {"letter": "E", "text": "ғ, е"}], "correct": 0}, {"question": "Идентификатор дегеніміз не?", "answers": [{"letter": "A", "text": "Функциялар белгісі"}, {"letter": "B", "text": "Амалдар белгісі"}, {"letter": "C", "text": "Программа объектілерінің атауы"}, {"letter": "D", "text": "Символдар тізбегі"}, {"letter": "E", "text": "Ұяшықтың реті"}], "correct": 0}, {"question": "С# мына идентификаторлардың: а)Summa-1, ә)Summa_1, б)Summa 1, в)auto, г)operatop, ғ)_a1, д)1a, е) A16 қайсылары дұрыс деп есептеледі?", "answers": [{"letter": "A", "text": "ә, ғ, е"}, {"letter": "B", "text": "а, ә, б"}, {"letter": "C", "text": "б, в, ғ"}, {"letter": "D", "text": "ғ, д, е"}, {"letter": "E", "text": "в, г, ғ"}], "correct": 0}, {"question": "2*(х-у)+1.7*x+8 өрнегіндегі тұрақты шамалардыанықта.", "answers": [{"letter": "A", "text": "2; 1.7,8"}, {"letter": "B", "text": "2х"}, {"letter": "C", "text": "1,7"}, {"letter": "D", "text": "2"}, {"letter": "E", "text": "2х- у"}], "correct": 0}, {"question": "Экранға нәтиже шығару функциясы", "answers": [{"letter": "A", "text": "ReadKey"}, {"letter": "B", "text": "ReadLine"}, {"letter": "C", "text": "WriteLine"}, {"letter": "D", "text": "void Main"}, {"letter": "E", "text": "Math"}], "correct": 0}, {"question": "Консолдық режимде экранға хабар шығару функциясы", "answers": [{"letter": "A", "text": "Console.WriteLine(p);"}, {"letter": "B", "text": "Console.ReadLine(“Hello, World!”);"}, {"letter": "C", "text": "Console.ReadKey(“Hello, World!”);"}, {"letter": "D", "text": "textBox3.Text = Convert.ToString(num3);"}, {"letter": "E", "text": "Console.WriteLine(“Hello, World!”);"}], "correct": 0}, {"question": "Айнымалы дегеніміз - бұл ...", "answers": [{"letter": "A", "text": "тұрақты шамалар"}, {"letter": "B", "text": "мәнін өзгертуге болмайтын айнымалы"}, {"letter": "C", "text": "арифметикалық амал"}, {"letter": "D", "text": "логикалық өрнек"}, {"letter": "E", "text": "жадтың аты аталған аймағы"}], "correct": 0}, {"question": "Жадтың аты аталған аймағы", "answers": [{"letter": "A", "text": "ұяшық"}, {"letter": "B", "text": "тұрақты шамалар"}, {"letter": "C", "text": "айнымалы"}, {"letter": "D", "text": "логикалық өрнек"}, {"letter": "E", "text": "регистр"}], "correct": 0}, {"question": "Тұрақты дегеніміз - бұл ...", "answers": [{"letter": "A", "text": "арифметикалық амал"}, {"letter": "B", "text": "жадтың аты аталған аймағы"}, {"letter": "C", "text": "мәнін өзгертуге болмайтын айнымалы"}, {"letter": "D", "text": "логикалық өрнек"}, {"letter": "E", "text": "логикалық өрнек"}], "correct": 0}, {"question": "Мәнін өзгертуге болмайтын айнымалы", "answers": [{"letter": "A", "text": "регистр"}, {"letter": "B", "text": "айнымалы"}, {"letter": "C", "text": "ұяшық"}, {"letter": "D", "text": "логикалық өрнек"}, {"letter": "E", "text": "тұрақты"}], "correct": 0}, {"question": "Айнымалыны сипаттаудың дұрыс үлгісі", "answers": [{"letter": "A", "text": "a=10;"}, {"letter": "B", "text": "int a:=10;"}, {"letter": "C", "text": "cons int a=10;"}, {"letter": "D", "text": "cons int a:=10;"}, {"letter": "E", "text": "int a=10;"}], "correct": 0}, {"question": "Тұрақтыны сипаттаудың дұрыс үлгісі", "answers": [{"letter": "A", "text": "int a:=10;"}, {"letter": "B", "text": "const int a=10;"}, {"letter": "C", "text": "int a=10;"}, {"letter": "D", "text": "cons int a:=10;"}, {"letter": "E", "text": "a=10;"}], "correct": 0}, {"question": "Math класының қызметі", "answers": [{"letter": "A", "text": "математикалық функцияларды орындау"}, {"letter": "B", "text": "скалярлық функцияларды орындау"}, {"letter": "C", "text": "процедураларды орындау"}, {"letter": "D", "text": "графикалық функцияларды жүзеге асыру"}, {"letter": "E", "text": "экранды басқару функцияларын орындау"}], "correct": 0}, {"question": "Математикалық функцияларды орындау класы", "answers": [{"letter": "A", "text": "Sin"}, {"letter": "B", "text": "Graph"}, {"letter": "C", "text": "Cos"}, {"letter": "D", "text": "Math"}, {"letter": "E", "text": "Pow"}], "correct": 0}, {"question": "Өрнектің мәнін есептеу керек.* 35 % 4 - 5 % 2*", "answers": [{"letter": "A", "text": "0.5;"}, {"letter": "B", "text": "3;"}, {"letter": "C", "text": "2;"}, {"letter": "D", "text": "4;"}, {"letter": "E", "text": "6."}, {"letter": "A", "text": "2 рет"}, {"letter": "B", "text": "орындалмайды"}, {"letter": "C", "text": "n-рет"}, {"letter": "D", "text": "1 рет"}, {"letter": "E", "text": "n-1 рет"}], "correct": 0}, {"question": "Өзіндік аты бар тілдің минималды бірлігі", "answers": [{"letter": "A", "text": "лексема"}, {"letter": "B", "text": "комментарий"}, {"letter": "C", "text": "директивалар"}, {"letter": "D", "text": "класс"}, {"letter": "E", "text": "айнымалылар"}], "correct": 0}, {"question": "Компиляторлар үшін арнайы мағынаға ие идентификаторларды ... деп айтаймыз", "answers": [{"letter": "A", "text": "амалдар"}, {"letter": "B", "text": "тұрақтылар"}, {"letter": "C", "text": "мәліметтер типтері"}, {"letter": "D", "text": "кілттік сөздер"}, {"letter": "E", "text": "өрнектер"}], "correct": 0}, {"question": "Лексемалар, процессор директивалары және комментарийлер неден құралады?", "answers": [{"letter": "A", "text": "Операциялардан"}, {"letter": "B", "text": "Амалдардан"}, {"letter": "C", "text": "Идентификатордан"}, {"letter": "D", "text": "Веб сервистерден"}, {"letter": "E", "text": "Символдардан"}], "correct": 0}, {"question": "Өзіндік аты бар тілдің минималды бірлігі қалай аталады", "answers": [{"letter": "A", "text": "Шарттар"}, {"letter": "B", "text": "Символдар"}, {"letter": "C", "text": "Амалдар"}, {"letter": "D", "text": "Лексема"}, {"letter": "E", "text": "Операциялар"}], "correct": 0}, {"question": "Идентификатор дегеніміз не?", "answers": [{"letter": "A", "text": "Өзіндік аты бар тілдің минималды бірлігі"}, {"letter": "B", "text": "Программалық обьектінің аты"}, {"letter": "C", "text": "Өңдеу құралының құрамы"}, {"letter": "D", "text": "Мәтінді редактор"}], "correct": 0}, {"question": "Компиляторлар үшін арнайы мағынаға ие идентификаторлар дегеніміз не ?", "answers": [{"letter": "A", "text": "Өңдеу құралының құрамы"}, {"letter": "B", "text": "Мәтінді редактор"}, {"letter": "C", "text": "Анықтамалық жүйе"}, {"letter": "D", "text": "Кілттік сөздер"}, {"letter": "E", "text": "Символдар"}], "correct": 0}, {"question": "Амалдар белгілері дегеніміз не?", "answers": [{"letter": "A", "text": "Анықтамалық жүйе"}, {"letter": "B", "text": "кілттік сөздер"}, {"letter": "C", "text": "Символдар"}, {"letter": "D", "text": "Мәтінді редактор"}, {"letter": "E", "text": "Операндаларға әрекеттер орындауды анықтайтын бір немесе одан көп символдар"}], "correct": 0}, {"question": "Айнымалылар дегеніміз не?", "answers": [{"letter": "A", "text": "Символдар"}, {"letter": "B", "text": "Анықтамалық жүйе"}, {"letter": "C", "text": "Белгілі бір типтегі мәліметтер сақталатын жадының атау берілген аймағы"}, {"letter": "D", "text": "Операциялар"}, {"letter": "E", "text": "Мәтінді редактор"}], "correct": 0}, {"question": "Түрлендірудің қандай түрлері болады", "answers": [{"letter": "A", "text": "Үлкен, кіші"}, {"letter": "B", "text": "Айқын және айқын емес"}, {"letter": "C", "text": "Қарапайым, күрделі"}, {"letter": "D", "text": "Ашық, жабық"}, {"letter": "E", "text": "Ауызша, жазбаша"}], "correct": 0}, {"question": "Өрнек дегеніміз не?", "answers": [{"letter": "A", "text": "Амалдар"}, {"letter": "B", "text": "Есептеу"}, {"letter": "C", "text": "Мәндерді есептеу ережесі"}, {"letter": "D", "text": "Операция"}, {"letter": "E", "text": "Символдар"}], "correct": 0}, {"question": "С#-та унарлы арифметикалық операторларының қандай түрлері бар", "answers": [{"letter": "A", "text": "Қарапайым, күрделі"}, {"letter": "B", "text": "Инкремент және декремент"}, {"letter": "C", "text": "Ашық, жабық"}, {"letter": "D", "text": "Үлкен, кіші"}, {"letter": "E", "text": "Ауызша, жазбаша"}], "correct": 0}, {"question": "New амалы не үшін арналған?", "answers": [{"letter": "A", "text": "объектіге меншіктеуге"}, {"letter": "B", "text": "Шарт беруге"}, {"letter": "C", "text": "Жаңа объект құруға"}, {"letter": "D", "text": "объектіні сипаттауға"}, {"letter": "E", "text": "объектіні көшіруге"}], "correct": 0}, {"question": "Консоль дегеніміз не?", "answers": [{"letter": "A", "text": "Операциялар жиынтығы"}, {"letter": "B", "text": "Стандартты құрылғының енгізу және шығару жиынтығы"}, {"letter": "C", "text": "Символдар жиынтығы"}, {"letter": "D", "text": "Мәтінді редактор"}, {"letter": "E", "text": "Амалдар жиынтығы"}], "correct": 0}, {"question": "Қайсысы C# тұрақтылары болады: а) бүтін, б) байттық с) нақты д) жиын е) массив ж) символдық з) жазба", "answers": [{"letter": "A", "text": "е,ж,з"}, {"letter": "B", "text": "а,в,с"}, {"letter": "C", "text": "с,д,е"}, {"letter": "D", "text": "б,д,е"}, {"letter": "E", "text": "а, с,ж"}, {"letter": "A", "text": "8u, 567"}, {"letter": "B", "text": "true, false"}, {"letter": "C", "text": "5.7, 5E10"}, {"letter": "D", "text": "‘@’,’F’"}, {"letter": "E", "text": "“zero”,” enter”"}], "correct": 0}, {"question": "Бүтін тұрақтыны көрсетіңіз", "answers": [{"letter": "A", "text": "8u, 567"}, {"letter": "B", "text": "true, false"}, {"letter": "C", "text": "5.7, 5E10"}, {"letter": "D", "text": "‘@’,’F’"}, {"letter": "E", "text": "“zero”,” enter”"}], "correct": 0}, {"question": "Нақты тұрақтыны көрсетіңіз", "answers": [{"letter": "B", "text": "8u, 567"}, {"letter": "C", "text": "true, false"}, {"letter": "D", "text": "5.7, 5E10"}, {"letter": "E", "text": "“zero”,” enter”"}], "correct": 0}, {"question": "Символдық тұрақтыны көрсетіңіз", "answers": [{"letter": "A", "text": "5.7, 5E10"}, {"letter": "B", "text": "‘@’,’F’"}, {"letter": "C", "text": "8u, 567"}, {"letter": "D", "text": "true, false"}, {"letter": "E", "text": "“zero”,” enter”"}], "correct": 0}, {"question": "Жолдық тұрақтыны көрсетіңіз", "answers": [{"letter": "A", "text": "‘@’,’F’"}, {"letter": "B", "text": "“zero”,” enter”"}, {"letter": "C", "text": "5.7, 5E10"}, {"letter": "D", "text": "8u, 567"}, {"letter": "E", "text": "true, false"}], "correct": 0}, {"question": "Жолдарды біріктіру (конкатенация) үшін қолданылатын операторды көрсетіңіз", "answers": [{"letter": "A", "text": "+"}, {"letter": "B", "text": "[ ]"}, {"letter": "C", "text": "\\t"}, {"letter": "D", "text": "\\r\\n"}, {"letter": "E", "text": "/"}], "correct": 0}, {"question": "Жолдың символдарына индексі бойынша қатынау үшін пайдаланылатын операторды көрсетіңіз", "answers": [{"letter": "A", "text": "+"}, {"letter": "B", "text": "[ ]"}, {"letter": "C", "text": "\\t"}, {"letter": "D", "text": "\\r\\n"}, {"letter": "E", "text": "/"}], "correct": 0}, {"question": "Жолдың бос немесе бос еместігін анықтайтын әдіс", "answers": [{"letter": "A", "text": "ToUpper()"}, {"letter": "B", "text": "Compare()"}, {"letter": "C", "text": "IsNullOrEmpty()"}, {"letter": "D", "text": "Contains()"}, {"letter": "E", "text": "IndexOf()"}], "correct": 0}, {"question": "Жолдарды салыстыру әдісін көрсетіңіз", "answers": [{"letter": "A", "text": "Contains()"}, {"letter": "B", "text": "IsNullOrEmpty()"}, {"letter": "C", "text": "ToUpper()"}, {"letter": "D", "text": "Compare()"}, {"letter": "E", "text": "IndexOf()"}], "correct": 0}, {"question": "Жолды жоғарғы регистрге ауыстыру әдісін көрсетіңіз", "answers": [{"letter": "A", "text": "Contains()"}, {"letter": "B", "text": "IsNullOrEmpty()"}, {"letter": "C", "text": "Compare()"}, {"letter": "D", "text": "ToUpper()"}, {"letter": "E", "text": "IndexOf()"}], "correct": 0}, {"question": "Жол қамтитын ішкі жолдың 1-ші символының индексін анықтауға арналған әдісті көрсетіңіз", "answers": [{"letter": "A", "text": "Compare()"}, {"letter": "B", "text": "IsNullOrEmpty()"}, {"letter": "C", "text": "IndexOf()"}, {"letter": "D", "text": "ToUpper()"}, {"letter": "E", "text": "Contains()"}], "correct": 0}, {"question": "Жолдың көрсетілген позициясына жол бөлігін қосу әдісін көрсетіңіз", "answers": [{"letter": "A", "text": "Remove()"}, {"letter": "B", "text": "Insert()"}, {"letter": "C", "text": "Substring()"}, {"letter": "D", "text": "Replace()"}, {"letter": "E", "text": "ToCharArray()"}], "correct": 0}, {"question": "Жолдан көрсетілген позициядан бастап жол бөлігін өшіруге арналған әдіс", "answers": [{"letter": "A", "text": "Replace()"}, {"letter": "B", "text": "Insert()"}, {"letter": "C", "text": "Substring()"}, {"letter": "D", "text": "Remove()"}, {"letter": "E", "text": "ToCharArray()"}], "correct": 0}, {"question": "Жолдан көрсетілген позициядан бастап жол бөлігін қиып алуға арналған әдіс", "answers": [{"letter": "A", "text": "ToCharArray()"}, {"letter": "B", "text": "Insert()"}, {"letter": "C", "text": "Remove()"}, {"letter": "D", "text": "Replace()"}, {"letter": "E", "text": "Substring()"}], "correct": 0}, {"question": "Жолдағы барлық ішкі жолдарды көрсетілген жаңа ішкі жолдарға ауыстыруға арналған әдіс", "answers": [{"letter": "A", "text": "Remove()"}, {"letter": "B", "text": "Insert()"}, {"letter": "C", "text": "Replace()"}, {"letter": "D", "text": "Substring()"}, {"letter": "E", "text": "ToCharArray()"}], "correct": 0}, {"question": "Жолдарды символдар массивіне түрлендіру әдісін көрсетіңіз", "answers": [{"letter": "A", "text": "Remove()"}, {"letter": "B", "text": "Insert()"}, {"letter": "C", "text": "ToCharArray()"}, {"letter": "D", "text": "Substring()"}, {"letter": "E", "text": "Replace()"}], "correct": 0}, {"question": "Жолды көрсетілген символ бойынша ішкі жолдар массивіне бөлу әдісін көрсетіңіз", "answers": [{"letter": "A", "text": "Split()"}, {"letter": "B", "text": "Insert()"}, {"letter": "C", "text": "Remove()"}, {"letter": "D", "text": "Substring()"}, {"letter": "E", "text": "Replace()"}], "correct": 0}, {"question": "Жол құру тәсілдерінің дұрысын көрсетіңіз: a) string s; b) var s:str; c) string t=”Informatika”, d) string v=new string(a); e) str1:string; g) var s: char{‘0’,’1’,’1’}", "answers": [{"letter": "A", "text": "c,d,g"}, {"letter": "B", "text": "a,b,e"}, {"letter": "C", "text": "b,c,g"}, {"letter": "D", "text": "b,d,e"}, {"letter": "E", "text": "a,c,d"}], "correct": 0}, {"question": "while (x<10) болғанда цикл денесіндегі операторлар қай уақытқа дейін орындалады?", "answers": [{"letter": "A", "text": "әзір *х *10-ға тең болғанда"}, {"letter": "B", "text": "әзір *х *10-нан кіші не тең болғанда"}, {"letter": "C", "text": "әзір *х *10-нан үлкен болғанда"}, {"letter": "D", "text": "әзір *х *10-нан кіші болғанша орындалады"}, {"letter": "E", "text": "шарт дұрыс емес"}], "correct": 0}, {"question": "Мәліметтер типтері-", "answers": [{"letter": "A", "text": "программалық объектінің атауы"}, {"letter": "B", "text": "элементтерді топтау үшін пайдаланылады"}, {"letter": "C", "text": "операндаларға амалдар орындауды анықтайтын бір немесе бірнеше символдар"}, {"letter": "D", "text": "компиляторлар үшін арнайы мағынаға ие идентификаторлар"}, {"letter": "E", "text": "мәліметтердің ішкі берілуін, сәйкесінше, олардың мүмкін болатын мәндерінің жиынтығын, мәліметтермен орындауға болатын амалдарды анықтайды"}], "correct": 0}, {"question": "Идентификаторлар-", "answers": [{"letter": "A", "text": "программалық объектінің атауы"}, {"letter": "B", "text": "мәліметтердің ішкі берілуін, сәйкесінше, олардың мүмкін болатын мәндерінің жиынтығын, мәліметтермен орындауға болатын амалдарды анықтайды"}, {"letter": "C", "text": "элементтерді топтау үшін пайдаланылады"}, {"letter": "D", "text": "операндаларға амалдар орындауды анықтайтын бір немесе бірнеше символдар"}, {"letter": "E", "text": "компиляторлар үшін арнайы мағынаға ие идентификаторлар"}], "correct": 0}, {"question": "Бүтін сандар массивін жариялауды көрсетіңіз?", "answers": [{"letter": "A", "text": "int[] array = new int[5];"}, {"letter": "B", "text": "string[] seasons = new string[4] {\"қыс\",\"көктем\",\"жаз\",\"күз\"};"}, {"letter": "C", "text": "numbers1 = new int[2, 2];"}, {"letter": "D", "text": "char [] seasons = new string[4]"}, {"letter": "E", "text": "float [] array = new int[5]"}], "correct": 0}, {"question": "Жолдық массивтіжариялау және инициализациялауды көрсетіңіз?", "answers": [{"letter": "A", "text": "string[] seasons = new string[4] {\"қыс\",\"көктем\",\"жаз\",\"күз\"};"}, {"letter": "B", "text": "int[] array = new int[5];"}, {"letter": "C", "text": "numbers1 = new int[2, 2];"}, {"letter": "D", "text": "char [] seasons = new string[4]"}, {"letter": "E", "text": "float [] array = new int[5]"}], "correct": 0}, {"question": "Нақты типті массивті жариялауды көрсетіңіз?", "answers": [{"letter": "A", "text": "string[] seasons = new string[4] {\"қыс\",\"көктем\",\"жаз\",\"күз\"};"}, {"letter": "B", "text": "float [] array = new int[5]"}, {"letter": "C", "text": "int[] array = new int[5];"}, {"letter": "D", "text": "numbers1 = new int[2, 2];"}, {"letter": "E", "text": "char [] seasons = new string[4]"}], "correct": 0}, {"question": "Массивтегі элементтер санын қайтаратын қасиет?", "answers": [{"letter": "A", "text": "Sort"}, {"letter": "B", "text": "Rank"}, {"letter": "C", "text": "Length"}, {"letter": "D", "text": "Array"}, {"letter": "E", "text": "List"}], "correct": 0}, {"question": "Массив өлшемін анықтайтын қасиет ?", "answers": [{"letter": "A", "text": "Rank"}, {"letter": "B", "text": "Length"}, {"letter": "C", "text": "Sort"}, {"letter": "D", "text": "Array"}, {"letter": "E", "text": "List"}], "correct": 0}, {"question": "Массивті сұрыптау әдісін көрсетіңіз", "answers": [{"letter": "A", "text": "Sort"}, {"letter": "B", "text": "Rank"}, {"letter": "C", "text": "Length"}, {"letter": "D", "text": "Array"}, {"letter": "E", "text": "List"}], "correct": 0}, {"question": "Тізімдермен жұмыс жасауға арналған класты көрсетіңіз ?", "answers": [{"letter": "A", "text": "Sort"}, {"letter": "B", "text": "List"}, {"letter": "C", "text": "Rank"}, {"letter": "D", "text": "Length"}, {"letter": "E", "text": "Array"}], "correct": 0}, {"question": "Элементті тізім соңына қосатын әдіс қандай?", "answers": [{"letter": "A", "text": "AddRange([элементтер тізімі])"}, {"letter": "B", "text": "Add([элемент])"}, {"letter": "C", "text": "Insert([индекс],[элемент])"}, {"letter": "D", "text": "Remove([элемент])"}, {"letter": "E", "text": "Clear()"}], "correct": 0}, {"question": "Көрсетілген тізім соңына элементтер қосатын әдіс қандай?", "answers": [{"letter": "A", "text": "Clear()"}, {"letter": "B", "text": "Add([элемент])"}, {"letter": "C", "text": "Insert([индекс],[элемент])"}, {"letter": "D", "text": "Remove([элемент])"}, {"letter": "E", "text": "AddRange([элементтер тізімі])"}], "correct": 0}, {"question": "Индекске сәйкес көрсетілген позицияға элемент қосатын әдіс қандай?", "answers": [{"letter": "A", "text": "Remove([элемент])"}, {"letter": "B", "text": "AddRange([элементтер тізімі])"}, {"letter": "C", "text": "Add([элемент])"}, {"letter": "D", "text": "Insert([индекс],[элемент])"}, {"letter": "E", "text": "Clear()"}], "correct": 0}, {"question": "Тізімнен көрсетілген элементтің алғашқы енгізілуін өшіретін әдіс қандай?", "answers": [{"letter": "A", "text": "AddRange([элементтер тізімі])"}, {"letter": "B", "text": "Insert([индекс],[элемент])"}, {"letter": "C", "text": "Remove([элемент])"}, {"letter": "D", "text": "Add([элемент])"}, {"letter": "E", "text": "Clear()"}], "correct": 0}, {"question": "Тізімнің барлық элементтерін өшіретін әдіс қандай?", "answers": [{"letter": "A", "text": "AddRange([элементтер тізімі])"}, {"letter": "B", "text": "Remove([элемент])"}, {"letter": "C", "text": "Insert([индекс],[элемент])"}, {"letter": "D", "text": "Clear()"}, {"letter": "E", "text": "Add([элемент])"}], "correct": 0}, {"question": "Тізімдер санын анықтайтын қасиетті көрсетіңіз", "answers": [{"letter": "A", "text": "Add([элемент])"}, {"letter": "B", "text": "Remove([элемент])"}, {"letter": "C", "text": "Insert([индекс],[элемент])"}, {"letter": "D", "text": "Clear()"}, {"letter": "E", "text": "Count"}], "correct": 0}, {"question": "Егер температура -20-дан кіші немесе 40-тан үлкен - деген шарттың C#-та жазылуы", "answers": [{"letter": "A", "text": "if (t >-20 || t != 40))"}, {"letter": "B", "text": "if (t < -20 || t > 40)"}, {"letter": "C", "text": "if (t >-20 || t <40))"}, {"letter": "D", "text": "if (t >-20&& t <40)"}, {"letter": "E", "text": "if !((t >-20 || t <40))"}], "correct": 0}, {"question": "Егер температура 20-дан үлкен және 40-тан кіші - деген шарттың C#-та жазылуы", "answers": [{"letter": "A", "text": "if (t >20&& t <40)"}, {"letter": "B", "text": "if (t < -20 || t > 40)"}, {"letter": "C", "text": "if (t >-20 || t != 40)"}, {"letter": "D", "text": "if (t >-20&& t <40)"}, {"letter": "E", "text": "if !((t >-20 || t <40))"}, {"letter": "A", "text": "if (t >-20&& t <40)"}, {"letter": "B", "text": "if (t >20&& t <40)"}, {"letter": "C", "text": "if (t < -20 || t > 40)"}, {"letter": "D", "text": "if (t >20 && t != 40)"}, {"letter": "E", "text": "if !((t >-20 || t <40))"}], "correct": 0}, {"question": "Инициализацияланған массивті көрсетіңіз?", "answers": [{"letter": "A", "text": "float [] array = new int[5]"}, {"letter": "B", "text": "int[] array = new int[5];"}, {"letter": "C", "text": "numbers1 = new int[2, 2];"}, {"letter": "D", "text": "char [] seasons = new string[4]"}, {"letter": "E", "text": "int[] numbers = { 4, 7, 13, 20, 33, 23, 54 };"}], "correct": 0}, {"question": "C#-та бір өлшемді массивті жариялауды көрсетіңіз?", "answers": [{"letter": "A", "text": "Type a: array[size] of тип"}, {"letter": "B", "text": "Type [, ] array_Name = new Type [Size, Sizes]"}, {"letter": "C", "text": "Type [ ] [ ] jagge_Array = new Type [size] [ ];"}, {"letter": "D", "text": "array [0] = new int[3];"}, {"letter": "E", "text": "Type [ ] array_Name = new Type [size]"}], "correct": 0}, {"question": "C#-та екі өлшемді массивті жариялауды көрсетіңіз?", "answers": [{"letter": "A", "text": "Type [ ] [ ] jagge Array = new Type [size] [ ];"}, {"letter": "B", "text": "Type [, ] array Name = new Type [Size, Sizes]"}, {"letter": "C", "text": "Type [ ] array Name = new Type [size]"}, {"letter": "D", "text": "array [0] = new int[3];"}, {"letter": "E", "text": "Type a: array[size1, size2] of тип"}], "correct": 0}, {"question": "int[,] arr2 = { {23, 44}, {55, 88} }; берілген массивтің жолдар және бағандар саны нешеу?", "answers": [{"letter": "A", "text": "2 жол, 2 бағана"}, {"letter": "B", "text": "2 жолды"}, {"letter": "C", "text": "бір өлшемді"}, {"letter": "D", "text": "вектор"}, {"letter": "E", "text": "23 жол, 44 баған"}], "correct": 0}, {"question": "C#-та Graphics класының данасын құру тәсілін көрсетіңіз", "answers": [{"letter": "A", "text": "Clear()"}, {"letter": "B", "text": "Dispose()"}, {"letter": "C", "text": "Graphics g;"}, {"letter": "D", "text": "Equals(Object) <https://msdn.microsoft.com/ru-ru/library/bsc2ak47(v=vs.110).aspx>"}, {"letter": "E", "text": "Clone() <https://msdn.microsoft.com/ru-ru/library/system.drawing.pen.clone(v=vs.110).aspx>"}], "correct": 0}, {"question": "C#-та Graphics класының данасын құру тәсілін көрсетіңіз", "answers": [{"letter": "A", "text": "Equals(Object) <https://msdn.microsoft.com/ru-ru/library/bsc2ak47(v=vs.110).aspx>"}, {"letter": "B", "text": "Dispose()"}, {"letter": "C", "text": "Clear()"}, {"letter": "D", "text": "Graphics g = e. Graphics;"}, {"letter": "E", "text": "Clone() <https://msdn.microsoft.com/ru-ru/library/system.drawing.pen.clone(v=vs.110).aspx>"}], "correct": 0}, {"question": "C#-та Graphics класының данасын құру тәсілін көрсетіңіз", "answers": [{"letter": "A", "text": "Clone() <https://msdn.microsoft.com/ru-ru/library/system.drawing.pen.clone(v=vs.110).aspx>"}, {"letter": "B", "text": "Dispose()"}, {"letter": "C", "text": "Clear()"}, {"letter": "D", "text": "Equals(Object) <https://msdn.microsoft.com/ru-ru/library/bsc2ak47(v=vs.110).aspx>"}, {"letter": "E", "text": "Bitmap bm= new Bitmap (“d: \\\\ picture.bmp”);"}], "correct": 0}, {"question": "Brush (Color) функциясының қызметі", "answers": [{"letter": "A", "text": "Секторды бояйды"}, {"letter": "B", "text": "Бояудың үлгілерін тағайындайды"}, {"letter": "C", "text": "Экранды тазалайды"}, {"letter": "D", "text": "Тұйық облысты бояйды"}, {"letter": "E", "text": "Берілген стильді бояйды"}], "correct": 0}, {"question": "DrawRectangle(Pen, Rectangle)функциясының қызметі", "answers": [{"letter": "A", "text": "Тік төртбұрыштың ішін бояйды"}, {"letter": "B", "text": "Тік төртбұрыш сызады"}, {"letter": "C", "text": "Параллелепипед салады"}, {"letter": "D", "text": "Үшбұрыш сызады"}, {"letter": "E", "text": "Түзу сызады"}], "correct": 0}, {"question": "FillRectangle(Pen, int, int,int,int)функциясыныңқызметі", "answers": [{"letter": "A", "text": "Дөңгелек сызады"}, {"letter": "B", "text": "Сектор сызады"}, {"letter": "C", "text": "Параллелепипед салады"}, {"letter": "D", "text": "Боялған тік төртбұрыш сызады"}, {"letter": "E", "text": "Эллипс сызады"}], "correct": 0}, {"question": "DrawRectangle(Pen, int, int, int, int)функциясыныңқызметі", "answers": [{"letter": "A", "text": "Доғасызады"}, {"letter": "B", "text": "тіктөртбұрыш сызады"}, {"letter": "C", "text": "Түзусызады"}, {"letter": "D", "text": "Нүктесалады"}, {"letter": "E", "text": "Эллипссызады"}], "correct": 0}, {"question": "DrawRectangle(Pen, float, float, float, float)функциясының қызметі", "answers": [{"letter": "A", "text": "Нүкте салады"}, {"letter": "B", "text": "Боялған шеңбер немесе сектор сызады"}, {"letter": "C", "text": "Эллипс сызады"}, {"letter": "D", "text": "Төртбұрыш сызады"}, {"letter": "E", "text": "Түзу салады"}], "correct": 0}, {"question": "putpіxel(x,y,c) функциясының қызметі", "answers": [{"letter": "A", "text": "Шеңбер салу"}, {"letter": "B", "text": "Нүктені өшіру"}, {"letter": "C", "text": "Кесінді салу"}, {"letter": "D", "text": "Hүкте салу"}, {"letter": "E", "text": "Доға сызады"}], "correct": 0}, {"question": "DrawLines(Pen, Point[])функциясының қызметі", "answers": [{"letter": "A", "text": "Шеңбер салу"}, {"letter": "B", "text": "сынық сызықтар салады"}, {"letter": "C", "text": "Эллипс салу"}, {"letter": "D", "text": "Төртбұрыш салу"}, {"letter": "E", "text": "Кесінді салу"}], "correct": 0}, {"question": "DrawPolygon(Pen, Point[]) функциясының қызметі", "answers": [{"letter": "A", "text": "Төртбұрыш салу"}, {"letter": "B", "text": "сынық сызықтар салады"}, {"letter": "C", "text": "Эллипс салу"}, {"letter": "D", "text": "көпбұрыштар салады"}, {"letter": "E", "text": "Кесінді салу"}], "correct": 0}, {"question": "DrawEllipse(Pen, Rectangle) функциясының қызметі", "answers": [{"letter": "A", "text": "Доға салу"}, {"letter": "B", "text": "Шеңбер салу"}, {"letter": "C", "text": "Эллипс салу"}, {"letter": "D", "text": "Төртбұрышсалу"}, {"letter": "E", "text": "Кесіндісалу"}], "correct": 0}, {"question": "DrawEllipse(Pen, int, int, int, int);", "answers": [{"letter": "A", "text": "Эллипссалу"}, {"letter": "B", "text": "Шеңберсалу"}, {"letter": "C", "text": "Доғасалу"}, {"letter": "D", "text": "Төртбұрышсалу"}, {"letter": "E", "text": "Кесіндісалу"}], "correct": 0}, {"question": "DrawArc(Pen, Rectangle, float, float) функциясын қандай фигура сызады?", "answers": [{"letter": "A", "text": "Эллипс сегментін"}, {"letter": "B", "text": "Шеңбер"}, {"letter": "C", "text": "Доға секторы"}, {"letter": "D", "text": "Эллипс"}, {"letter": "E", "text": "Шар"}], "correct": 0}, {"question": "DrawPie(Pen, Rectangle, float, float) функциясын қандай фигура сызады?", "answers": [{"letter": "A", "text": "Эллипс тұйық сегментін"}, {"letter": "B", "text": "Шеңбер"}, {"letter": "C", "text": "Доға секторы"}, {"letter": "D", "text": "Эллипс"}, {"letter": "E", "text": "Шар"}], "correct": 0}, {"question": "FillRectangle әдісіның қызметі қандай?", "answers": [{"letter": "A", "text": "Боялған эллипс сегментін салу"}, {"letter": "B", "text": "Боялған көпбұрыш салу"}, {"letter": "C", "text": "Боялған эллипс салу"}, {"letter": "D", "text": "Боялған төртбұрыш салу"}, {"letter": "E", "text": "Боялған сплайн салу"}], "correct": 0}, {"question": "FillPolygon әдісіның қызметі қандай?", "answers": [{"letter": "A", "text": "Боялған төртбұрыш салу"}, {"letter": "B", "text": "Боялған көпбұрыш салу"}, {"letter": "C", "text": "Боялған эллипс салу"}, {"letter": "D", "text": "Боялған эллипс сегментін салу"}, {"letter": "E", "text": "Боялған сплайн салу"}], "correct": 0}, {"question": "FillEllipse әдісіның қызметі қандай?", "answers": [{"letter": "A", "text": "Боялған көпбұрыш салу"}, {"letter": "B", "text": "Боялған эллипс салу"}, {"letter": "C", "text": "Боялған төртбұрыш салу"}, {"letter": "D", "text": "Боялған эллипс сегментін салу"}, {"letter": "E", "text": "Боялған сплайн салу"}], "correct": 0}, {"question": "FillPie әдісіның қызметі қандай?", "answers": [{"letter": "A", "text": "Боялған сплайн салу"}, {"letter": "B", "text": "Боялған эллипс салу"}, {"letter": "C", "text": "Боялған көпбұрыш салу"}, {"letter": "D", "text": "Боялған төртбұрыш салу"}, {"letter": "E", "text": "Боялған эллипс сегментін салу"}], "correct": 0}, {"question": "FillClosedCurve әдісіның қызметі қандай?", "answers": [{"letter": "A", "text": "Боялған көпбұрыш салу"}, {"letter": "B", "text": "Боялған эллипс сегментін салу"}, {"letter": "C", "text": "Боялған эллипс салу"}, {"letter": "D", "text": "Боялған сплайн салу"}, {"letter": "E", "text": "Боялған төртбұрыш салу"}], "correct": 0}, {"question": "Курсордың кезектегі орнын анықтайтын процедура", "answers": [{"letter": "A", "text": "putpіxel(x,y,c)"}, {"letter": "B", "text": "lіneto(x,y)"}, {"letter": "C", "text": "moveto(x,y)"}, {"letter": "D", "text": "moverel(x,y)"}, {"letter": "E", "text": "lіnerel(dx,dy)"}], "correct": 0}, {"question": "Label басқару элементі", "answers": [{"letter": "A", "text": "қолданушыға бірнеше нұсқадан біреуін таңдауға мүмкіндік береді;"}, {"letter": "B", "text": "басу оқиғасын орындайды;"}, {"letter": "C", "text": "мәтін енгізуге және жөндеуге мүмкіндік береді;"}, {"letter": "D", "text": "қандай да бір режимді қосу не ажырату үшін пайдаланылады;"}, {"letter": "E", "text": "формада мәтінді орналастыруға арналады;"}], "correct": 0}, {"question": "Button басқару элементі", "answers": [{"letter": "A", "text": "қолданушыға бірнеше нұсқадан біреуін таңдауға мүмкіндік береді;"}, {"letter": "B", "text": "мәтін енгізуге және жөндеуге мүмкіндік береді;"}, {"letter": "C", "text": "қандай да бір режимді қосу не ажырату үшін пайдаланылады;"}, {"letter": "D", "text": "басу оқиғасын орындайды;"}, {"letter": "E", "text": "формада мәтінді орналастыруға арналады;"}], "correct": 0}, {"question": "TextBox басқару элементі", "answers": [{"letter": "A", "text": "басу оқиғасын орындайды;"}, {"letter": "B", "text": "қандай да бір режимді қосу не ажырату үшін пайдаланылады;"}, {"letter": "C", "text": "қолданушыға бірнеше нұсқадан біреуін таңдауға мүмкіндік береді;"}, {"letter": "D", "text": "формада мәтінді орналастыруға арналады;"}, {"letter": "E", "text": "мәтін енгізуге және жөндеуге мүмкіндік береді;"}], "correct": 0}, {"question": "CheckBox басқару элементі", "answers": [{"letter": "A", "text": "қолданушыға бірнеше нұсқадан біреуін таңдауға мүмкіндік береді;"}, {"letter": "B", "text": "қандай да бір режимді қосу не ажырату үшін пайдаланылады;"}, {"letter": "C", "text": "формада мәтінді орналастыруға арналады;"}, {"letter": "D", "text": "басу оқиғасын орындайды;"}, {"letter": "E", "text": "мәтін енгізуге және жөндеуге мүмкіндік береді;"}], "correct": 0}, {"question": "RadioButton басқару элементі", "answers": [{"letter": "A", "text": "басу оқиғасын орындайды;"}, {"letter": "B", "text": "формада мәтінді орналастыруға арналады;"}, {"letter": "C", "text": "қолданушыға бірнеше нұсқадан біреуін таңдауға мүмкіндік береді;"}, {"letter": "D", "text": "мәтін енгізуге және жөндеуге мүмкіндік береді;"}, {"letter": "E", "text": "қандай да бір режимді қосу не ажырату үшін пайдаланылады;"}], "correct": 0}, {"question": "Form элементі", "answers": [{"letter": "A", "text": "мәтінді енгізу және өзгерту мүмкіндігін қамтамасыз етеді;"}, {"letter": "B", "text": "формадағы элементтерді топтау үшін пайдаланылады;"}, {"letter": "C", "text": "басқа басқару элементі үшін контейнер қызметін атқарады;"}, {"letter": "D", "text": "қарапайым тізімді білдіреді;"}, {"letter": "E", "text": "аралас тізімді білдіреді;"}], "correct": 0}, {"question": "GroupBox басқару элементі", "answers": [{"letter": "A", "text": "мәтінді енгізу және өзгерту мүмкіндігін қамтамасыз етеді;"}, {"letter": "B", "text": "формадағы элементтерді топтау үшін пайдаланылады;"}, {"letter": "C", "text": "қарапайым тізімді білдіреді;"}, {"letter": "D", "text": "аралас тізімді білдіреді;"}, {"letter": "E", "text": "басқа басқару элементі үшін контейнер қызметін атқарады;"}], "correct": 0}, {"question": "TextBox басқару элементі", "answers": [{"letter": "A", "text": "қарапайым тізімді білдіреді;"}, {"letter": "B", "text": "мәтінді енгізу және өзгерту мүмкіндігін қамтамасыз етеді;"}, {"letter": "C", "text": "аралас тізімді білдіреді;"}, {"letter": "D", "text": "басқа басқару элементі үшін контейнер қызметін атқарады;"}, {"letter": "E", "text": "формадағы элементтерді топтау үшін пайдаланылады;"}], "correct": 0}, {"question": "ListBox Басқару элементінің і", "answers": [{"letter": "A", "text": "аралас тізімді білдіреді;"}, {"letter": "B", "text": "қарапайым тізімді білдіреді;"}, {"letter": "C", "text": "басқа басқару элементі үшін контейнер қызметін атқарады;"}, {"letter": "D", "text": "формадағы элементтерді топтау үшін пайдаланылады;"}, {"letter": "E", "text": "мәтінді енгізу және өзгерту мүмкіндігін қамтамасыз етеді;"}], "correct": 0}, {"question": "ComboBox басқару элементі", "answers": [{"letter": "A", "text": "қарапайым тізімді білдіреді;"}, {"letter": "B", "text": "негізгі Басқару элементінің , басқа Басқару элементінің үшін контейнер қызметін атқарады;"}, {"letter": "C", "text": "формадағы элементтерді топтау үшін пайдаланылады;"}, {"letter": "D", "text": "мәтінді енгізу және өзгерту мүмкіндігін қамтамасыз етеді;"}, {"letter": "E", "text": "аралас тізімді білдіреді;"}], "correct": 0}, {"question": "MenuStrip басқару элементі", "answers": [{"letter": "A", "text": "жалаушаны білдіреді;"}, {"letter": "B", "text": "жанама мәзірді білдіреді;"}, {"letter": "C", "text": "бас мәзірді білдіреді;"}, {"letter": "D", "text": "ауыстырып қосқышты білдіреді;"}, {"letter": "E", "text": "бейнені білдіреді;"}], "correct": 0}, {"question": "ContextMenu басқару элементі", "answers": [{"letter": "A", "text": "бейнені білдіреді;"}, {"letter": "B", "text": "жалаушаны білдіреді;"}, {"letter": "C", "text": "ауыстырып қосқышты білдіреді;"}, {"letter": "D", "text": "жанама мәзірді білдіреді;"}, {"letter": "E", "text": "бас мәзірді білдіреді;"}], "correct": 0}, {"question": "CheckBox басқару элементі", "answers": [{"letter": "A", "text": "бейнені білдіреді;"}, {"letter": "B", "text": "ауыстырып қосқышты білдіреді;"}, {"letter": "C", "text": "жалаушаны білдіреді;"}, {"letter": "D", "text": "бас мәзірді білдіреді;"}, {"letter": "E", "text": "жанама мәзірді білдіреді;"}], "correct": 0}, {"question": "PictureBox басқару элементі", "answers": [{"letter": "A", "text": "ауыстырып қосқышты білдіреді;"}, {"letter": "B", "text": "бас мәзірді білдіреді;"}, {"letter": "C", "text": "жанама мәзірді білдіреді;"}, {"letter": "D", "text": "жалаушаны білдіреді;"}, {"letter": "E", "text": "бейнені білдіреді;"}], "correct": 0}, {"question": "Label басқару элементінің жазбасын қандай қасиет анықтайды?", "answers": [{"letter": "A", "text": "Text;"}, {"letter": "B", "text": "Font;"}, {"letter": "C", "text": "BackColor;"}, {"letter": "D", "text": "ForeColor;"}, {"letter": "E", "text": "TextAlign;"}], "correct": 0}, {"question": "Label басқару элементінің қаріпін қандай қасиет арқылы береміз?", "answers": [{"letter": "A", "text": "TextAlign;"}, {"letter": "B", "text": "BackColor;"}, {"letter": "C", "text": "ForeColor;"}, {"letter": "D", "text": "Font;"}, {"letter": "E", "text": "Text;"}], "correct": 0}, {"question": "Label басқару элементінің фон түсін қандай қасиет арқылы береміз?", "answers": [{"letter": "A", "text": "ForeColor;"}, {"letter": "B", "text": "BackColor;"}, {"letter": "C", "text": "TextAlign;"}, {"letter": "D", "text": "Text;"}, {"letter": "E", "text": "Font;"}], "correct": 0}, {"question": "Label басқару элементінің қаріп түсін қандай қасиет арқылы береміз?", "answers": [{"letter": "A", "text": "BackColor;"}, {"letter": "B", "text": "TextAlign;"}, {"letter": "C", "text": "Text;"}, {"letter": "D", "text": "Font;"}, {"letter": "E", "text": "ForeColor;"}], "correct": 0}, {"question": "Жазба мәтінін туралауды қандай қасиет арқылы береміз?", "answers": [{"letter": "A", "text": "ForeColor;"}, {"letter": "B", "text": "Text;"}, {"letter": "C", "text": "Font;"}, {"letter": "D", "text": "BackColor;"}, {"letter": "E", "text": "TextAlign;"}], "correct": 0}, {"question": "Label басқару элементінің өлшемін мәтінге байланысты автоматты түрде өзгеруін қамтамасыз ететін қасиет ?", "answers": [{"letter": "A", "text": "Image;"}, {"letter": "B", "text": "AutoSize;"}, {"letter": "C", "text": "Font;"}, {"letter": "D", "text": "BackColor;"}, {"letter": "E", "text": "ForeColor;"}], "correct": 0}, {"question": "Label басқару элементіне сурет орнатуды қамтамасыз ететін қасиет ?", "answers": [{"letter": "A", "text": "AutoSize;"}, {"letter": "B", "text": "Font;"}, {"letter": "C", "text": "BackColor;"}, {"letter": "D", "text": "ForeColor;"}, {"letter": "E", "text": "Image;"}], "correct": 0}, {"question": "Жазба Басқару элементінің інің Font қасиетінің міндеті қандай?", "answers": [{"letter": "A", "text": "Басқару элементінің інің өлшемін мәтінге байланысты автоматты түрде өзгеруін қамтамасыз етеді;"}, {"letter": "B", "text": "Басқару элементінің тің фон түсін орнатады;"}, {"letter": "C", "text": "Басқару элементінің тегі мәтіннің қаріп түсін орнатады;"}, {"letter": "D", "text": "Басқару элементінің тегі жазба мәтінін туралайды;"}, {"letter": "E", "text": "Басқару элементінің тегі мәтіннің каріпін орнатады;"}], "correct": 0}, {"question": "Жазба Басқару элементінің інің BackColor қасиетінің міндеті қандай?", "answers": [{"letter": "A", "text": "Басқару элементінің тің фон түсін орнатады;"}, {"letter": "B", "text": "Басқару элементінің тегі мәтіннің қаріп түсін орнатады;"}, {"letter": "C", "text": "Басқару элементінің тегі жазба мәтінін туралайды;"}, {"letter": "D", "text": "Басқару элементінің інің өлшемін мәтінге байланысты автоматты түрде өзгеруін қамтамасыз етеді;"}, {"letter": "E", "text": "Басқару элементінің тегі мәтіннің каріпін орнатады;"}], "correct": 0}, {"question": "Жазба Басқару элементінің інің ForeColor қасиетінің міндеті қандай?", "answers": [{"letter": "A", "text": "Басқару элементінің інің өлшемін мәтінге байланысты автоматты түрде өзгеруін қамтамасыз етеді;"}, {"letter": "B", "text": "Басқару элементінің тегі жазба мәтінін туралайды;"}, {"letter": "C", "text": "Басқару элементінің тегі мәтіннің қаріп түсін орнатады;"}, {"letter": "D", "text": "Басқару элементінің тегі мәтіннің каріпін орнатады;"}, {"letter": "E", "text": "Басқару элементінің тің фон түсін орнатады;"}], "correct": 0}, {"question": "Жазба Басқару элементінің інің TextAlign қасиетінің міндеті қандай?", "answers": [{"letter": "A", "text": "Басқару элементінің тегі мәтіннің қаріп түсін орнатады;"}, {"letter": "B", "text": "Басқару элементінің інің өлшемін мәтінге байланысты автоматты түрде өзгеруін қамтамасыз етеді;"}, {"letter": "C", "text": "Басқару элементінің тегі мәтіннің каріпін орнатады;"}, {"letter": "D", "text": "Басқару элементінің тің фон түсін орнатады;"}, {"letter": "E", "text": "Басқару элементінің тегі жазба мәтінін туралайды;"}], "correct": 0}, {"question": "Жазба Басқару элементінің інің AutoSize қасиетінің міндеті қандай?", "answers": [{"letter": "A", "text": "Басқару элементінің тегі мәтіннің каріпін орнатады;"}, {"letter": "B", "text": "Басқару элементінің інің өлшемін мәтінге байланысты автоматты түрде өзгеруін қамтамасыз етеді;"}, {"letter": "C", "text": "Басқару элементінің тің фон түсін орнатады;"}, {"letter": "D", "text": "Басқару элементінің тегі мәтіннің қаріп түсін орнатады;"}, {"letter": "E", "text": "Басқару элементінің тегі жазба мәтінін туралайды;"}], "correct": 0}, {"question": "Жазба Басқару элементінің інің Image қасиетінің міндеті қандай?", "answers": [{"letter": "A", "text": "Басқару элементінің тегі мәтіннің қаріп түсін орнатады;"}, {"letter": "B", "text": "Басқару элементінің тегі мәтіннің каріпін орнатады;"}, {"letter": "C", "text": "Басқару элементінің тің фон түсін орнатады;"}, {"letter": "D", "text": "Басқару элементінің ке сурет орнатуды қамтамасыз етеді;"}, {"letter": "E", "text": "Басқару элементінің тегі жазба мәтінін туралайды;"}], "correct": 0}, {"question": "TextBox Басқару элементінің іне мәтін енгізу қандай қасиет арқылы орындалады?", "answers": [{"letter": "A", "text": "Multiline"}, {"letter": "B", "text": "PasswordChar"}, {"letter": "C", "text": "Text"}, {"letter": "D", "text": "WordWhap"}, {"letter": "E", "text": "ReadOnly"}], "correct": 0}, {"question": "TextBox Басқару элементінің іне маска бойынша мәтін енгізу қандай қасиет арқылы орындалады?", "answers": [{"letter": "A", "text": "Multiline"}, {"letter": "B", "text": "PasswordChar"}, {"letter": "C", "text": "WordWhap"}, {"letter": "D", "text": "ReadOnly"}, {"letter": "E", "text": "Text"}], "correct": 0}, {"question": "TextBox Басқару элементінің іне бірнеше жолдан тұратын мәтін енгізуді қамтамасыз ететін қасиет", "answers": [{"letter": "A", "text": "PasswordChar"}, {"letter": "B", "text": "Font"}, {"letter": "C", "text": "ReadOnly"}, {"letter": "D", "text": "Text"}, {"letter": "E", "text": "Multiline"}], "correct": 0}, {"question": "TextBox Басқару элементінің індегі мәтінді өзгерту мүмкіндігін қамтамасыз ететін қасиет", "answers": [{"letter": "B", "text": "Font"}, {"letter": "C", "text": "ReadOnly"}, {"letter": "D", "text": "Text"}, {"letter": "E", "text": "PasswordChar"}], "correct": 0}, {"question": "TextBox Басқару элементінің індегі мәтіннің қаріпін орнатуға арналған қасиет", "answers": [{"letter": "A", "text": "Font"}, {"letter": "B", "text": "ReadOnly"}, {"letter": "C", "text": "Multiline"}, {"letter": "D", "text": "Text"}, {"letter": "E", "text": "PasswordChar"}], "correct": 0}, {"question": "TextBox Басқару элементінің інің Text қасиетінің міндеті қандай?", "answers": [{"letter": "A", "text": "Басқару элементінің тегі мәтіннің қаріпін орнатуды қамтамасыз етеді"}, {"letter": "B", "text": "Басқару элементінің ке маска бойынша мәтін енгізуді қамтамасыз етеді"}, {"letter": "C", "text": "Басқару элементінің ке бірнеше жолдан тұратын мәтін енгізуді қамтамасыз етеді"}, {"letter": "D", "text": "Басқару элементінің тегі мәтінді өзгерту мүмкіндігін қамтамасыз етеді"}, {"letter": "E", "text": "Басқару элементінің тегі мәтінді өзгерту мүмкіндігін қамтамасыз етеді"}], "correct": 0}, {"question": "TextBox Басқару элементінің інің PasswordChar қасиетінің міндеті қандай?", "answers": [{"letter": "A", "text": "Басқару элементінің ке бірнеше жолдан тұратын мәтін енгізуді қамтамасыз етеді"}, {"letter": "B", "text": "Басқару элементінің ке маска бойынша мәтін енгізуді қамтамасыз етеді"}, {"letter": "C", "text": "Басқару элементінің тегі мәтінді өзгерту мүмкіндігін қамтамасыз етеді"}, {"letter": "D", "text": "Басқару элементінің тегі мәтіннің қаріпін орнатуды қамтамасыз етеді"}, {"letter": "E", "text": "Басқару элементінің ке мәтін енгізеді және оны жөндестіруді қамтамасыз етеді"}], "correct": 0}, {"question": "TextBox Басқару элементінің інің Multiline қасиетінің міндеті қандай?", "answers": [{"letter": "A", "text": "Басқару элементінің тегі мәтінді өзгерту мүмкіндігін қамтамасыз етеді"}, {"letter": "B", "text": "Басқару элементінің ке бірнеше жолдан тұратын мәтін енгізуді қамтамасыз етеді"}, {"letter": "C", "text": "Басқару элементінің тегі мәтіннің қаріпін орнатуды қамтамасыз етеді"}, {"letter": "D", "text": "Басқару элементінің ке мәтін енгізеді және оны жөндестіруді қамтамасыз етеді"}, {"letter": "E", "text": "Басқару элементінің ке маска бойынша мәтін енгізуді қамтамасыз етеді"}], "correct": 0}, {"question": "TextBox Басқару элементінің інің ReadOnly қасиетінің міндеті қандай?", "answers": [{"letter": "A", "text": "Басқару элементінің ке маска бойынша мәтін енгізуді қамтамасыз етеді"}, {"letter": "B", "text": "Басқару элементінің тегі мәтіннің қаріпін орнатуды қамтамасыз етеді"}, {"letter": "C", "text": "Басқару элементінің ке мәтін енгізеді және оны жөндестіруді қамтамасыз етеді"}, {"letter": "D", "text": "Басқару элементінің тегі мәтінді өзгерту мүмкіндігін қамтамасыз етеді"}, {"letter": "E", "text": "Басқару элементінің ке бірнеше жолдан тұратын мәтін енгізуді қамтамасыз етеді"}], "correct": 0}, {"question": "TextBox Басқару элементінің інің Font қасиетінің міндеті қандай?", "answers": [{"letter": "A", "text": "Басқару элементінің ке бірнеше жолдан тұратын мәтін енгізуді қамтамасыз етеді"}, {"letter": "B", "text": "Басқару элементінің ке мәтін енгізеді және оны жөндестіруді қамтамасыз етеді"}, {"letter": "C", "text": "Басқару элементінің ке маска бойынша мәтін енгізуді қамтамасыз етеді"}, {"letter": "D", "text": "Басқару элементінің тегі мәтіннің қаріпін орнатуды қамтамасыз етеді"}, {"letter": "E", "text": "Басқару элементінің тегі мәтінді өзгерту мүмкіндігін қамтамасыз етеді"}], "correct": 0}, {"question": "TextBox Басқару элементінің індегі мәтінді тазалау әдісі", "answers": [{"letter": "A", "text": "Focus"}, {"letter": "B", "text": "Select"}, {"letter": "C", "text": "Copy"}, {"letter": "D", "text": "Paste"}, {"letter": "E", "text": "Clear"}], "correct": 0}, {"question": "TextBox Басқару элементінің індегі мәтінді ерекшелеу әдісі", "answers": [{"letter": "A", "text": "Focus"}, {"letter": "B", "text": "Copy"}, {"letter": "C", "text": "Paste"}, {"letter": "D", "text": "Select"}, {"letter": "E", "text": "Clear"}], "correct": 0}, {"question": "TextBox Басқару элементінің індегі ерекшеленген мәтінді буферге көшіру әдісі", "answers": [{"letter": "A", "text": "Focus"}, {"letter": "B", "text": "Paste"}, {"letter": "C", "text": "Copy"}, {"letter": "D", "text": "Clear"}, {"letter": "E", "text": "Select"}], "correct": 0}, {"question": "Элементке енгізу фокусын орнататын әдіс", "answers": [{"letter": "A", "text": "Copy"}, {"letter": "B", "text": "Paste"}, {"letter": "C", "text": "Clear"}, {"letter": "D", "text": "Select"}, {"letter": "E", "text": "Focus"}], "correct": 0}, {"question": "TextBox Басқару элементінің іне буферден мәтін қою әдісі", "answers": [{"letter": "A", "text": "Focus"}, {"letter": "B", "text": "Paste"}, {"letter": "C", "text": "Clear"}, {"letter": "D", "text": "Select"}, {"letter": "E", "text": "Copy"}], "correct": 0}, {"question": "Clear әдісі ...", "answers": [{"letter": "A", "text": "енгізу фокусын орнатады"}, {"letter": "B", "text": "мәтінді ерекшелейді"}, {"letter": "C", "text": "ерекшеленген мәтінді буферге көшіреді"}, {"letter": "D", "text": "буферден мәтін қояды"}, {"letter": "E", "text": "өрістегі мәтінді тазалайды"}], "correct": 0}, {"question": "Select әдісі ...", "answers": [{"letter": "A", "text": "енгізу фокусын орнатады"}, {"letter": "B", "text": "өрістегі мәтінді тазалайды"}, {"letter": "C", "text": "ерекшеленген мәтінді буферге көшіреді"}, {"letter": "D", "text": "буферден мәтін қояды"}, {"letter": "E", "text": "мәтінді ерекшелейді"}], "correct": 0}, {"question": "Copy әдісі ...", "answers": [{"letter": "A", "text": "мәтінді ерекшелейді"}, {"letter": "B", "text": "мәтінді ерекшелейді"}, {"letter": "C", "text": "ерекшеленген мәтінді буферге көшіреді"}, {"letter": "D", "text": "буферден мәтін қояды"}, {"letter": "E", "text": "енгізу фокусын орнатады"}], "correct": 0}, {"question": "Paste әдісі ...", "answers": [{"letter": "A", "text": "өрістегі мәтінді тазалайды"}, {"letter": "B", "text": "буферден мәтін қояды"}, {"letter": "C", "text": "мәтінді ерекшелейді"}, {"letter": "D", "text": "ерекшеленген мәтінді буферге көшіреді"}, {"letter": "E", "text": "енгізу фокусын орнатады"}], "correct": 0}, {"question": "Focus әдісі ...", "answers": [{"letter": "A", "text": "енгізу фокусын орнатады"}, {"letter": "B", "text": "өрістегі мәтінді тазалайды"}, {"letter": "C", "text": "мәтінді ерекшелейді"}, {"letter": "D", "text": "ерекшеленген мәтінді буферге көшіреді"}, {"letter": "E", "text": "буферден мәтін қояды"}], "correct": 0}, {"question": "Басу оқиғасы деп аталатын басқару элементін таңдауда қандай оқиға пайда болады ?", "answers": [{"letter": "A", "text": "Hіnt"}, {"letter": "B", "text": "KeyPress"}, {"letter": "C", "text": "Enter"}, {"letter": "D", "text": "Exіt"}, {"letter": "E", "text": "Clіck"}], "correct": 0}, {"question": "Алфавитті-цифрлы түймешіктерді әр басқан кезде қандай оқиға генерацияланады ?", "answers": [{"letter": "A", "text": "Exіt"}, {"letter": "B", "text": "Clіck"}, {"letter": "C", "text": "Enter"}, {"letter": "D", "text": "KeyPress"}, {"letter": "E", "text": "Hіnt"}], "correct": 0}, {"question": "Тышқан түймешігін басқан кезде қандай оқиға пайда болады ?", "answers": [{"letter": "A", "text": "KeyPress"}, {"letter": "B", "text": "MouseUp"}, {"letter": "C", "text": "Enter"}, {"letter": "D", "text": "MouseDown"}, {"letter": "E", "text": "Clіck"}], "correct": 0}, {"question": "Тышқан түймешігін жіберген кезде қандай оқиға пайда болады ?", "answers": [{"letter": "A", "text": "Clіck"}, {"letter": "B", "text": "MouseDown"}, {"letter": "C", "text": "Enter"}, {"letter": "D", "text": "KeyPress"}, {"letter": "E", "text": "MouseUp"}], "correct": 0}, {"question": "Тышқан түймешігін басқан кезде оқиғалар қандай ретпен пайда болады ?", "answers": [{"letter": "A", "text": "MouseDown, MouseUp, Clіck"}, {"letter": "B", "text": "MouseDown, Clіck, MouseUp, DblClіck, MouseDown, MouseUp"}, {"letter": "C", "text": "KeyDown, KeyPress, KeyUp"}, {"letter": "D", "text": "Clіck, MouseDown, MouseUp"}, {"letter": "E", "text": "MouseDown, Clіck, MouseUp"}], "correct": 0}, {"question": "Басқару элементінің облысында тышқанның сол жақ кнопкасын екі рет шерткенде қандай оқиға генерацияланады ?", "answers": [{"letter": "A", "text": "Clіck"}, {"letter": "B", "text": "KeyPress"}, {"letter": "C", "text": "DoubleClіck"}, {"letter": "D", "text": "Enter"}, {"letter": "E", "text": "MouseUp"}], "correct": 0}, {"question": "Форма арқылы енгізу фокусын қабылдау кезінде қандай оқиға пайда болады ?", "answers": [{"letter": "A", "text": "Activated"}, {"letter": "B", "text": "Closed"}, {"letter": "C", "text": "Load"}, {"letter": "D", "text": "KeyDown"}, {"letter": "E", "text": "KeyUp"}], "correct": 0}, {"question": "Форманы жабу кезінде қандай оқиға пайда болады ?", "answers": [{"letter": "A", "text": "KeyUp"}, {"letter": "B", "text": "Activated"}, {"letter": "C", "text": "Load"}, {"letter": "D", "text": "KeyDown"}, {"letter": "E", "text": "Closed"}], "correct": 0}, {"question": "Форманы жүктеу кезінде қандай оқиға пайда болады ?", "answers": [{"letter": "A", "text": "Closed"}, {"letter": "B", "text": "Activated"}, {"letter": "C", "text": "Load"}, {"letter": "D", "text": "KeyDown"}, {"letter": "E", "text": "KeyUp"}], "correct": 0}, {"question": "Кез келген пернетақтаны басу кезінде қандай оқиға пайда болады ?", "answers": [{"letter": "A", "text": "Load"}, {"letter": "B", "text": "Activated"}, {"letter": "C", "text": "Closed"}, {"letter": "D", "text": "KeyDown"}, {"letter": "E", "text": "KeyUp"}], "correct": 0}, {"question": "Кез келген пернетақтаны жіберу кезінде қандай оқиға пайда болады ?", "answers": [{"letter": "A", "text": "Closed"}, {"letter": "B", "text": "Activated"}, {"letter": "C", "text": "KeyUp"}, {"letter": "D", "text": "Load"}, {"letter": "E", "text": "KeyDown"}], "correct": 0}, {"question": "Тышқан көрсеткішін орнын ауыстыру кезінде қандай оқиға пайда болады ?", "answers": [{"letter": "A", "text": "MouseUp"}, {"letter": "B", "text": "MouseMove"}, {"letter": "C", "text": "MouseDown"}, {"letter": "D", "text": "Load"}, {"letter": "E", "text": "KeyDown"}], "correct": 0}, {"question": "Тышқан көрсеткішінен болатын оқиғалар:", "answers": [{"letter": "A", "text": "MouseMove, MouseUp, MouseDown,Clіck ,DoubleClіck, MouseEnter, MouseLeave, MouseWheel"}, {"letter": "B", "text": "KeyDown, KeyPress, KeyUp"}, {"letter": "C", "text": "BackColorChanged, ContextMenuChanged, FontChanged, Move, Paint, Resize"}, {"letter": "D", "text": "GetFocus, Leave, LostFocus"}, {"letter": "E", "text": "KeyDown, MouseMove, MouseUp, BackColorChanged"}], "correct": 0}, {"question": "Пернетақтадан болатын оқиғалар:", "answers": [{"letter": "A", "text": "KeyDown, KeyPress, KeyUp"}, {"letter": "B", "text": "MouseMove, MouseUp, MouseDown,Clіck ,DoubleClіck, MouseEnter, MouseLeave, MouseWheel"}, {"letter": "C", "text": "BackColorChanged, ContextMenuChanged, FontChanged, Move, Paint, Resize"}, {"letter": "D", "text": "GetFocus, Leave, LostFocus"}, {"letter": "E", "text": "KeyDown, MouseMove, MouseUp, BackColorChanged"}], "correct": 0}, {"question": "Элементке енгізу фокусын орнатуға арналған әдіс", "answers": [{"letter": "A", "text": "Focus"}, {"letter": "B", "text": "Hide"}, {"letter": "C", "text": "Show"}, {"letter": "D", "text": "Refresh"}, {"letter": "E", "text": "SetBonds"}], "correct": 0}, {"question": "Элементті бейнелеу әдісі", "answers": [{"letter": "A", "text": "SetBonds"}, {"letter": "B", "text": "Refresh"}, {"letter": "C", "text": "Show"}, {"letter": "D", "text": "Focus"}, {"letter": "E", "text": "Hide"}], "correct": 0}, {"question": "Элементті бұғу әдісі", "answers": [{"letter": "A", "text": "Refresh"}, {"letter": "B", "text": "Show"}, {"letter": "C", "text": "Hide"}, {"letter": "D", "text": "SetBonds"}, {"letter": "E", "text": "Focus"}], "correct": 0}, {"question": "Элементті және оның барлық ішкі элементтерін жаңарту әдісі", "answers": [{"letter": "A", "text": "SetBonds"}, {"letter": "B", "text": "Refresh"}, {"letter": "C", "text": "Focus"}, {"letter": "D", "text": "Hide"}, {"letter": "E", "text": "Show"}, {"letter": "A", "text": "Focus"}, {"letter": "B", "text": "SetBonds"}, {"letter": "C", "text": "Hide"}, {"letter": "D", "text": "Show"}, {"letter": "E", "text": "Refresh"}], "correct": 0}, {"question": "Focus әдісі қандай қызмет атқарады?", "answers": [{"letter": "A", "text": "элементтің өлшемін және оның орналасуын басқарады"}, {"letter": "B", "text": "элементті бейнелейді"}, {"letter": "C", "text": "элементті бұғады"}, {"letter": "D", "text": "элементті және оның барлық ішкі элементтерін жаңартады"}, {"letter": "E", "text": "элементке енгізу фокусын орнатады"}], "correct": 0}, {"question": "Show әдісі қандай қызмет атқарады?", "answers": [{"letter": "A", "text": "элементті және оның барлық ішкі элементтерін жаңартады"}, {"letter": "B", "text": "элементті бұғады"}, {"letter": "C", "text": "элементті бейнелейді"}, {"letter": "D", "text": "элементтің өлшемін және оның орналасуын басқарады"}, {"letter": "E", "text": "элементке енгізу фокусын орнатады"}], "correct": 0}, {"question": "Hide әдісі қандай қызмет атқарады?", "answers": [{"letter": "A", "text": "элементтің өлшемін және оның орналасуын басқарады"}, {"letter": "B", "text": "элементті және оның барлық ішкі элементтерін жаңартады"}, {"letter": "C", "text": "элементті бұғады"}, {"letter": "D", "text": "элементке енгізу фокусын орнатады"}, {"letter": "E", "text": "элементті бейнелейді"}], "correct": 0}, {"question": "Refresh әдісі қандай қызмет атқарады?", "answers": [{"letter": "A", "text": "элементке енгізу фокусын орнатады"}, {"letter": "B", "text": "элементтің өлшемін және оның орналасуын басқарады"}, {"letter": "C", "text": "элементті және оның барлық ішкі элементтерін жаңартады"}, {"letter": "D", "text": "элементті бейнелейді"}, {"letter": "E", "text": "элементті бұғады"}], "correct": 0}, {"question": "SetBonds әдісі қандай қызмет атқарады?", "answers": [{"letter": "A", "text": "элементті және оның барлық ішкі элементтерін жаңартады"}, {"letter": "B", "text": "элементке енгізу фокусын орнатады"}, {"letter": "C", "text": "элементті бейнелейді"}, {"letter": "D", "text": "элементті бұғады"}, {"letter": "E", "text": "элементтің өлшемін және оның орналасуын басқарады"}], "correct": 0}, {"question": "MenuStrip басқару элементінің қандай қасиеті меню пуктінің белсенділігін анықтайды ?", "answers": [{"letter": "A", "text": "Bіtmap"}, {"letter": "B", "text": "Enabled"}, {"letter": "C", "text": "Vіsіble"}, {"letter": "D", "text": "Checked"}, {"letter": "E", "text": "RadіoІtem"}], "correct": 0}, {"question": "MenuStrip компонентінің қандай қасиеті мәзір элементтерінің жинағын сақтайды?", "answers": [{"letter": "A", "text": "Text"}, {"letter": "B", "text": "Items"}, {"letter": "C", "text": "Size"}, {"letter": "D", "text": "Name"}, {"letter": "E", "text": "Enabled"}], "correct": 0}, {"question": "MenuStrip басқару элементінің қандай қасиеті пункттің көрінуін анықтайды?", "answers": [{"letter": "A", "text": "RadіoІtem"}, {"letter": "B", "text": "Checked"}, {"letter": "C", "text": "Vіsіble"}, {"letter": "D", "text": "Enabled"}, {"letter": "E", "text": "Bіtmap"}], "correct": 0}, {"question": "MenuStrip басқару элементінің қандай қасиеті меню пунктінің таңдалынғандығын анықтайды?", "answers": [{"letter": "A", "text": "RadіoІtem"}, {"letter": "B", "text": "Checked"}, {"letter": "C", "text": "Enabled"}, {"letter": "D", "text": "Bіtmap"}, {"letter": "E", "text": "Vіsіble"}], "correct": 0}, {"question": "CheckBox басқару элементінің күйін анықтайтын қасиетті көрсетіңіз?", "answers": [{"letter": "A", "text": "ThreeState"}, {"letter": "B", "text": "Checked"}, {"letter": "C", "text": "CheckState"}, {"letter": "D", "text": "Appearange"}, {"letter": "E", "text": "Vіsіble"}], "correct": 0}, {"question": "CheckBox Басқару элементінің інде жалаушаның орнатылғанын не орнатылмағандығын анықтайтын қасиетті көрсетіңіз?", "answers": [{"letter": "A", "text": "CheckState"}, {"letter": "B", "text": "Checked"}, {"letter": "C", "text": "ThreeState"}, {"letter": "D", "text": "Appearange"}, {"letter": "E", "text": "Vіsіble"}], "correct": 0}, {"question": "CheckBox Басқару элементінің інің үшінші күйін қолданушы орнату мүмкіндігін анықтайтын қасиетті көрсетіңіз?", "answers": [{"letter": "A", "text": "CheckState"}, {"letter": "B", "text": "Appearange"}, {"letter": "C", "text": "Vіsіble"}, {"letter": "D", "text": "Checked"}, {"letter": "E", "text": "ThreeState"}], "correct": 0}, {"question": "CheckBox Басқару элементінің інің бейнеленуін анықтайтын қасиетті көрсетіңіз?", "answers": [{"letter": "A", "text": "ThreeState"}, {"letter": "B", "text": "Vіsіble"}, {"letter": "C", "text": "Checked"}, {"letter": "D", "text": "CheckState"}, {"letter": "E", "text": "Appearange"}], "correct": 0}, {"question": "ListBox Басқару элементінің індегі тізімнен элементті таңдауды анықтайтын қасиетті көрсетіңіз?", "answers": [{"letter": "A", "text": "Sorted"}, {"letter": "B", "text": "MultiColumn"}, {"letter": "C", "text": "SelectionMode"}, {"letter": "D", "text": "Items"}, {"letter": "E", "text": "SelectedItems"}], "correct": 0}, {"question": "Тізімді бірнеше баған бойынша орналастыруға арналған қасиетті көрсетіңіз?", "answers": [{"letter": "A", "text": "Sorted"}, {"letter": "B", "text": "SelectionMode"}, {"letter": "C", "text": "MultiColumn"}, {"letter": "D", "text": "Items"}, {"letter": "E", "text": "SelectedItems"}], "correct": 0}, {"question": "Тізімді алфавиттік рет бойынша сұрыптауға арналған қасиетті көрсетіңіз?", "answers": [{"letter": "A", "text": "MultiColumn"}, {"letter": "B", "text": "Items"}, {"letter": "C", "text": "SelectedItems"}, {"letter": "D", "text": "Sorted"}, {"letter": "E", "text": "SelectionMode"}], "correct": 0}, {"question": "Тізімнің жеке элементіне қатынауға арналған қасиетті көрсетіңіз?", "answers": [{"letter": "A", "text": "Sorted"}, {"letter": "B", "text": "SelectedItems"}, {"letter": "C", "text": "MultiColumn"}, {"letter": "D", "text": "SelectionMode"}, {"letter": "E", "text": "Items"}], "correct": 0}, {"question": "Тізімдегі ерекшеленген элементтерді анықтауға арналған қасиетті көрсетіңіз?", "answers": [{"letter": "A", "text": "Sorted"}, {"letter": "B", "text": "MultiColumn"}, {"letter": "C", "text": "SelectionMode"}, {"letter": "D", "text": "SelectedItems"}, {"letter": "E", "text": "Items"}], "correct": 0}, {"question": "Тізімге элемент қосуға арналған әдістерді көрсетіңіз?", "answers": [{"letter": "A", "text": "Add,AddRange,Insert"}, {"letter": "B", "text": "Remove, RemoveAt"}, {"letter": "C", "text": "Close, Exit"}, {"letter": "D", "text": "Free, Delete, Destroy"}, {"letter": "E", "text": "SelectedItems, Indices"}], "correct": 0}, {"question": "Тізімнен элементтерді өшіруге арналған әдістерді көрсетіңіз?", "answers": [{"letter": "A", "text": "SelectedItems, Indices"}, {"letter": "B", "text": "Add,AddRange,Insert"}, {"letter": "C", "text": "Close, Exit"}, {"letter": "D", "text": "Free, Delete, Destroy"}, {"letter": "E", "text": "Remove, RemoveAt"}], "correct": 0}, {"question": "Form класының Activate әдісінің қызметі ?", "answers": [{"letter": "A", "text": "форманы белсенді етеді және оған енгізу фокусын орналастырады"}, {"letter": "B", "text": "форманы жабады"}, {"letter": "C", "text": "форманы экран ортасына орналастырады"}, {"letter": "D", "text": "форманы бейнелейді"}, {"letter": "E", "text": "форманы диалогты терезе ретінде бейнелейді"}], "correct": 0}, {"question": "Form класының Close әдісінің қызметі ?", "answers": [{"letter": "A", "text": "форманы белсенді етеді және оған енгізу фокусын орналастырады"}, {"letter": "B", "text": "форманы жабады"}, {"letter": "C", "text": "форманы экран ортасына орналастырады"}, {"letter": "D", "text": "форманы экран ортасына орналастырады"}, {"letter": "E", "text": "форманы диалогты терезе ретінде бейнелейді"}, {"letter": "A", "text": "форманы диалогты терезе ретінде бейнелейді"}, {"letter": "B", "text": "форманы бейнелейді"}, {"letter": "C", "text": "форманы экран ортасына орналастырады"}, {"letter": "D", "text": "форманы жабады"}, {"letter": "E", "text": "форманы белсенді етеді және оған енгізу фокусын орналастырады"}], "correct": 0}, {"question": "Form класының Show әдісінің қызметі ?", "answers": [{"letter": "A", "text": "форманы диалогты терезе ретінде бейнелейді"}, {"letter": "B", "text": "форманы бейнелейді"}, {"letter": "C", "text": "форманы жабады"}, {"letter": "D", "text": "форманы белсенді етеді және оған енгізу фокусын орналастырады"}, {"letter": "E", "text": "форманы экран ортасына орналастырады"}], "correct": 0}, {"question": "Form класының ShowDialog әдісінің қызметі ?", "answers": [{"letter": "A", "text": "форманы диалогты терезе ретінде бейнелейді"}, {"letter": "B", "text": "форманы жабады"}, {"letter": "C", "text": "форманы белсенді етеді және оған енгізу фокусын орналастырады"}, {"letter": "D", "text": "форманы экран ортасына орналастырады"}, {"letter": "E", "text": "форманы бейнелейді"}], "correct": 0}, {"question": "Форманы белсенді ететін және оған енгізу фокусын орналастыратын әдіс қандай ?", "answers": [{"letter": "A", "text": "Close"}, {"letter": "B", "text": "Activate"}, {"letter": "C", "text": "CenterToScreen"}, {"letter": "D", "text": "Show"}, {"letter": "E", "text": "ShowDialog"}], "correct": 0}, {"question": "Форманы жабуға арналған әдіс қандай ?", "answers": [{"letter": "A", "text": "Close"}, {"letter": "B", "text": "CenterToScreen"}, {"letter": "C", "text": "Show"}, {"letter": "D", "text": "ShowDialog"}, {"letter": "E", "text": "Activate"}], "correct": 0}, {"question": "Форманы экран ортасына орналастыратын әдіс қандай ?", "answers": [{"letter": "A", "text": "CenterToScreen"}, {"letter": "B", "text": "Show"}, {"letter": "C", "text": "ShowDialog"}, {"letter": "D", "text": "Activate"}, {"letter": "E", "text": "Close"}], "correct": 0}, {"question": "Форманы диалогты терезе ретінде бейнелейтін әдіс қандай ?", "answers": [{"letter": "A", "text": "Show"}, {"letter": "B", "text": "ShowDialog"}, {"letter": "C", "text": "Activate"}, {"letter": "D", "text": "Close"}, {"letter": "E", "text": "CenterToScreen"}], "correct": 0}, {"question": "Форманы бейнелейтін әдіс қандай ?", "answers": [{"letter": "A", "text": "CenterToScreen"}, {"letter": "B", "text": "ShowDialog"}, {"letter": "C", "text": "Activate"}, {"letter": "D", "text": "Close"}, {"letter": "E", "text": "Show"}], "correct": 0}, {"question": "Түс таңдау стандартты диалогты терезесін анықтаңыз?", "answers": [{"letter": "A", "text": "ColorDialog"}, {"letter": "B", "text": "FileDialog"}, {"letter": "C", "text": "FontDialog"}, {"letter": "D", "text": "PrintPreviewDialog"}, {"letter": "E", "text": "Clipboard"}], "correct": 0}, {"question": "Файл таңдау стандартты диалогты терезесін анықтаңыз?", "answers": [{"letter": "A", "text": "Clipboard"}, {"letter": "B", "text": "ColorDialog"}, {"letter": "C", "text": "FontDialog"}, {"letter": "D", "text": "PrintPreviewDialog"}, {"letter": "E", "text": "FileDialog"}], "correct": 0}, {"question": "Қаріп таңдау стандартты диалогты терезесін анықтаңыз?", "answers": [{"letter": "A", "text": "FontDialog"}, {"letter": "B", "text": "PrintPreviewDialog"}, {"letter": "C", "text": "Clipboard"}, {"letter": "D", "text": "FileDialog"}, {"letter": "E", "text": "ColorDialog"}], "correct": 0}, {"question": "Алдын ала қарау стандартты диалогты терезесін анықтаңыз?", "answers": [{"letter": "A", "text": "PrintPreviewDialog"}, {"letter": "B", "text": "Clipboard"}, {"letter": "C", "text": "FileDialog"}, {"letter": "D", "text": "ColorDialog"}, {"letter": "E", "text": "FontDialog"}], "correct": 0}, {"question": "Жолдың ұзындығын анықтау үшін қолданылатын қасиет", "answers": [{"letter": "A", "text": "Compare"}, {"letter": "B", "text": "Insert"}, {"letter": "C", "text": "Remove"}, {"letter": "D", "text": "Replace"}, {"letter": "E", "text": "Length"}], "correct": 0}, {"question": "Length қасиеті не үшін қолданылады?", "answers": [{"letter": "A", "text": "Барлық жолды жоғарғы регистрге ауыстыру үшін"}, {"letter": "B", "text": "Жолдарды салыстыру үшін"}, {"letter": "C", "text": "Жолдың ұзындығын анықтау үшін"}, {"letter": "D", "text": "Барлық жолды төменгі регистрге ауыстыру үшін"}, {"letter": "E", "text": "Жолда ішкі жолдың бар болуын тексеру үшін"}], "correct": 0}, {"question": "Жолдарды салыстыру үшін қолданылатын әдіс", "answers": [{"letter": "A", "text": "Replace ( )"}, {"letter": "B", "text": "Insert ( )"}, {"letter": "C", "text": "Remove ( )"}, {"letter": "D", "text": "Compare( )"}, {"letter": "E", "text": "ToLower( )"}], "correct": 0}, {"question": "Compare( ) әдісі не үшін қолданылады?", "answers": [{"letter": "A", "text": "Барлық жолды жоғарғы регистрге ауыстыру үшін"}, {"letter": "B", "text": "Жолдың ұзындығын анықтау үшін"}, {"letter": "C", "text": "Жолдарды салыстыру үшін"}, {"letter": "D", "text": "Барлық жолды төменгі регистрге ауыстыру үшін"}, {"letter": "E", "text": "Жолда ішкі жолдың бар болуын тексеру үшін"}], "correct": 0}, {"question": "Барлық жолды жоғарғы регистрге ауыстыру үшін қолданылатын әдіс", "answers": [{"letter": "A", "text": "ToLower( )"}, {"letter": "B", "text": "Insert ( )"}, {"letter": "C", "text": "Remove ( )"}, {"letter": "D", "text": "Replace ( )"}, {"letter": "E", "text": "ToUpper ( )"}], "correct": 0}, {"question": "ToUpper ( ) әдісі не үшін қолданылады?", "answers": [{"letter": "A", "text": "Жолдарды салыстыру үшін"}, {"letter": "B", "text": "Жолдың ұзындығын анықтау үшін"}, {"letter": "C", "text": "Барлық жолды жоғарғы регистрге ауыстыру үшін"}, {"letter": "D", "text": "Барлық жолды төменгі регистрге ауыстыру үшін"}, {"letter": "E", "text": "Жолда ішкі жолдың бар болуын тексеру үшін"}], "correct": 0}, {"question": "Барлық жолды төменгі регистрге ауыстыру үшін қолданылатын әдіс", "answers": [{"letter": "A", "text": "ToUpper ( )"}, {"letter": "B", "text": "Insert ( )"}, {"letter": "C", "text": "Remove ( )"}, {"letter": "D", "text": "Replace ( )"}, {"letter": "E", "text": "ToLower( )"}], "correct": 0}, {"question": "ToLower ( ) әдісі не үшін қолданылады?", "answers": [{"letter": "A", "text": "Барлық жолды жоғарғы регистрге ауыстыру үшін"}, {"letter": "B", "text": "Жолдың ұзындығын анықтау үшін"}, {"letter": "C", "text": "Жолдарды салыстыру үшін"}, {"letter": "D", "text": "Барлық жолды төменгі регистрге ауыстыру үшін"}, {"letter": "E", "text": "Жолда ішкі жолдың бар болуын тексеру үшін"}], "correct": 0}, {"question": "Жолда ішкі жолдың бар болуын тексеретін әдіс", "answers": [{"letter": "A", "text": "Remove ( )"}, {"letter": "B", "text": "ToLower( )"}, {"letter": "C", "text": "Contains( )"}, {"letter": "D", "text": "Replace ( )"}, {"letter": "E", "text": "ToUpper ( )"}], "correct": 0}, {"question": "Contains ( ) әдісі не үшін қолданылады?", "answers": [{"letter": "A", "text": "Жолдың ұзындығын анықтау үшін"}, {"letter": "B", "text": "Жолда ішкі жолдың бар болуын тексеру үшін"}, {"letter": "C", "text": "Жолдарды салыстыру үшін"}, {"letter": "D", "text": "Барлық жолды жоғарғы регистрге ауыстыру үшін"}, {"letter": "E", "text": "Барлық жолды төменгі регистрге ауыстыру үшін"}], "correct": 0}, {"question": "Жолдың ішкі жолындағы бірінші симолдың индексін қайтаратын әдіс", "answers": [{"letter": "A", "text": "ToUpper ( )"}, {"letter": "B", "text": "ToLower( )"}, {"letter": "C", "text": "Remove ( )"}, {"letter": "D", "text": "Replace ( )"}, {"letter": "E", "text": "IndexOf( )"}], "correct": 0}, {"question": "IndexOf ( ) әдісі не үшін қолданылады?", "answers": [{"letter": "A", "text": "Жолдың ішкі жолындағы бірінші симолдың индексін қайтару үшін"}, {"letter": "B", "text": "Жолдың ұзындығын анықтау үшін"}, {"letter": "C", "text": "Жолдарды салыстыру үшін"}, {"letter": "D", "text": "Барлық жолды жоғарғы регистрге ауыстыру үшін"}, {"letter": "E", "text": "Барлық жолды төменгі регистрге ауыстыру үшін"}], "correct": 0}, {"question": "Жолдың берілген ішкі жолдан басталатынын анықтау үшін қолданылатын әдіс", "answers": [{"letter": "A", "text": "StartsWith( )"}, {"letter": "B", "text": "ToLower( )"}, {"letter": "C", "text": "Remove ( )"}, {"letter": "D", "text": "Replace ( )"}, {"letter": "E", "text": "ToUpper ( )"}], "correct": 0}, {"question": "StartsWith ( ) әдісі не үшін қолданылады?", "answers": [{"letter": "A", "text": "Барлық жолды төменгі регистрге ауыстыру үшін"}, {"letter": "B", "text": "Жолдың ұзындығын анықтау үшін"}, {"letter": "C", "text": "Жолдарды салыстыру үшін"}, {"letter": "D", "text": "Барлық жолды жоғарғы регистрге ауыстыру үшін"}, {"letter": "E", "text": "Жолдың берілген ішкі жолдан басталатынын анықтау үшін"}], "correct": 0}, {"question": "Жолдың берілген ішкі жолдан аяқталатынын анықтау үшін қолданылатын әдіс", "answers": [{"letter": "A", "text": "ToUpper ( )"}, {"letter": "B", "text": "ToLower( )"}, {"letter": "C", "text": "Remove ( )"}, {"letter": "D", "text": "Replace ( )"}, {"letter": "E", "text": "EndsWith( )"}], "correct": 0}, {"question": "EndsWith ( ) әдісі не үшін қолданылады?", "answers": [{"letter": "A", "text": "Барлық жолды жоғарғы регистрге ауыстыру үшін"}, {"letter": "B", "text": "Жолдың ұзындығын анықтау үшін"}, {"letter": "C", "text": "Жолдарды салыстыру үшін"}, {"letter": "D", "text": "Жолдың берілген ішкі жолдан аяқталатынын анықтау үшін"}, {"letter": "E", "text": "Барлық жолды төменгі регистрге ауыстыру үшін"}], "correct": 0}, {"question": "Жолға ішкі жолды берілген позициядан бастап қою әдісі", "answers": [{"letter": "A", "text": "Insert( )"}, {"letter": "B", "text": "ToLower( )"}, {"letter": "C", "text": "Remove ( )"}, {"letter": "D", "text": "Replace ( )"}, {"letter": "E", "text": "ToUpper ( )"}], "correct": 0}, {"question": "Insert( ) әдісі не үшін қолданылады?", "answers": [{"letter": "A", "text": "Жолға ішкі жолды берілген позициядан бастап қою үшін"}, {"letter": "B", "text": "Жолдың ұзындығын анықтау үшін"}, {"letter": "C", "text": "Жолдарды салыстыру үшін"}, {"letter": "D", "text": "Барлық жолды жоғарғы регистрге ауыстыру үшін"}, {"letter": "E", "text": "Барлық жолды төменгі регистрге ауыстыру үшін"}], "correct": 0}, {"question": "Берілген позициядан бастап жолды қию әдісі", "answers": [{"letter": "A", "text": "ToLower( )"}, {"letter": "B", "text": "Remove ( )"}, {"letter": "C", "text": "Insert( )"}, {"letter": "D", "text": "Replace ( )"}, {"letter": "E", "text": "ToUpper ( )"}], "correct": 0}, {"question": "Remove ( ) әдісі не үшін қолданылады?", "answers": [{"letter": "A", "text": "Жолдарды салыстыру үшін"}, {"letter": "B", "text": "Жолдың ұзындығын анықтау үшін"}, {"letter": "C", "text": "Берілген позициядан бастап жолды қию үшін"}, {"letter": "D", "text": "Барлық жолды жоғарғы регистрге ауыстыру үшін"}, {"letter": "E", "text": "Барлық жолды төменгі регистрге ауыстыру үшін"}], "correct": 0}, {"question": "Жолдан ішкі жолды берілген позициядан бастап алу әдісі", "answers": [{"letter": "A", "text": "Substring ( )"}, {"letter": "B", "text": "ToLower( )"}, {"letter": "C", "text": "Insert( )"}, {"letter": "D", "text": "Replace ( )"}, {"letter": "E", "text": "ToUpper ( )"}], "correct": 0}, {"question": "Substring ( ) әдісі не үшін қолданылады?", "answers": [{"letter": "A", "text": "Жолдан ішкі жолды берілген позициядан бастап алу үшін"}, {"letter": "B", "text": "Жолдың ұзындығын анықтау үшін"}, {"letter": "C", "text": "Жолдарды салыстыру үшін"}, {"letter": "D", "text": "Барлық жолды жоғарғы регистрге ауыстыру үшін"}, {"letter": "E", "text": "Барлық жолды төменгі регистрге ауыстыру үшін"}], "correct": 0}, {"question": "Жолдағы барлық ішкі жолдарды берілген ішкі жолмен ауыстыру әдісі", "answers": [{"letter": "A", "text": "Replace ( )"}, {"letter": "B", "text": "ToLower( )"}, {"letter": "C", "text": "Insert( )"}, {"letter": "D", "text": "Substring ( )"}, {"letter": "E", "text": "ToUpper ( )"}], "correct": 0}, {"question": "Replace ( ) әдісі не үшін қолданылады?", "answers": [{"letter": "A", "text": "Жолдан ішкі жолды берілген позициядан бастап алу үшін"}, {"letter": "B", "text": "Жолдың ұзындығын анықтау үшін"}, {"letter": "C", "text": "Жолдағы барлық ішкі жолдарды берілген ішкі жолмен ауыстыру үшін"}, {"letter": "D", "text": "Барлық жолды жоғарғы регистрге ауыстыру үшін"}, {"letter": "E", "text": "Барлық жолды төменгі регистрге ауыстыру үшін"}], "correct": 0}, {"question": "Берілген жолдың символдар массивін қайтаратын әдіс", "answers": [{"letter": "A", "text": "ToUpper ( )"}, {"letter": "B", "text": "ToLower( )"}, {"letter": "C", "text": "Insert( )"}, {"letter": "D", "text": "Substring ( )"}, {"letter": "E", "text": "ToCharArray ( )"}], "correct": 0}, {"question": "ToCharArray ( ) әдісі не үшін қолданылады?", "answers": [{"letter": "A", "text": "Жолдан ішкі жолды берілген позициядан бастап алу үшін"}, {"letter": "B", "text": "Жолдың ұзындығын анықтау үшін"}, {"letter": "C", "text": "Берілген жолдың символдар массивін қайтару үшін"}, {"letter": "D", "text": "Барлық жолды жоғарғы регистрге ауыстыру үшін"}, {"letter": "E", "text": "Барлық жолды төменгі регистрге ауыстыру үшін"}], "correct": 0}, {"question": "Берілген жолды көрсетілген символ бойынша ішкі жолдар массивіне бөлетін әдіс", "answers": [{"letter": "A", "text": "Substring ( )"}, {"letter": "B", "text": "ToLower( )"}, {"letter": "C", "text": "Insert( )"}, {"letter": "D", "text": "Split ( )"}, {"letter": "E", "text": "ToUpper ( )"}], "correct": 0}, {"question": "Split ( ) әдісі не үшін қолданылады?", "answers": [{"letter": "A", "text": "Барлық жолды жоғарғы регистрге ауыстыру үшін"}, {"letter": "B", "text": "Жолдың ұзындығын анықтау үшін"}, {"letter": "C", "text": "Жолдан ішкі жолды берілген позициядан бастап алу үшін"}, {"letter": "D", "text": "Берілген жолды көрсетілген символ бойынша ішкі жолдар массивіне бөлу үшін"}, {"letter": "E", "text": "Барлық жолды төменгі регистрге ауыстыру үшін"}], "correct": 0}, {"question": "Сыртқы есте сақтау құрылғысында сақталынатын деректер жиыны", "answers": [{"letter": "A", "text": "жол"}, {"letter": "B", "text": "массив"}, {"letter": "C", "text": "файл"}, {"letter": "D", "text": "жиын"}, {"letter": "E", "text": "жазба"}], "correct": 0}, {"question": "Бос файл құру үшін қолданылатын әдіс", "answers": [{"letter": "A", "text": "Create ()"}, {"letter": "B", "text": "WriteAllText ()"}, {"letter": "C", "text": "AppendAllText ()"}, {"letter": "D", "text": "Delete()"}, {"letter": "E", "text": "ReadLine()"}], "correct": 0}, {"question": "Create() әдісі не үшін қолданылады?", "answers": [{"letter": "A", "text": "Барлық деректерді файлдан оқу үшін"}, {"letter": "B", "text": "Жаңа файл құру, немесе бар файлды ашу және файлда бар мәтіндерді ауыстырып жаңа мәтін жазу үшін"}, {"letter": "C", "text": "Жаңа файл құру, немесе бар файлды ашу және жаңа мәтінді файл соңына жазу үшін"}, {"letter": "D", "text": "Файлды берілген жол бойынша өшіру"}, {"letter": "E", "text": "Бос файл құру үшін"}], "correct": 0}, {"question": "Жаңа файл құру, немесе бар файлды ашу және файлда бар мәтіндерді ауыстырып жаңа мәтін жазу әдісі", "answers": [{"letter": "A", "text": "ReadLine()"}, {"letter": "B", "text": "Create ()"}, {"letter": "C", "text": "AppendAllText ()"}, {"letter": "D", "text": "Delete()"}, {"letter": "E", "text": "WriteAllText ()"}], "correct": 0}, {"question": "WriteAllText () әдісі не үшін қолданылады?", "answers": [{"letter": "A", "text": "Бос файл құру үшін"}, {"letter": "B", "text": "Жаңа файл құру, немесе бар файлды ашу және файлда бар мәтіндерді ауыстырып жаңа мәтін жазу үшін"}, {"letter": "C", "text": "Жаңа файл құру, немесе бар файлды ашу және жаңа мәтінді файл соңына жазу үшін"}, {"letter": "D", "text": "Файлды берілген жол бойынша өшіру"}, {"letter": "E", "text": "Барлық деректерді файлдан оқу үшін"}], "correct": 0}, {"question": "Жаңа файл құру, немесе бар файлды ашу және жаңа мәтінді файл соңына жазатын әдісі", "answers": [{"letter": "A", "text": "WriteAllText ()"}, {"letter": "B", "text": "Create ()"}, {"letter": "C", "text": "AppendAllText ()"}, {"letter": "D", "text": "Delete()"}, {"letter": "E", "text": "ReadLine()"}], "correct": 0}, {"question": "AppendAllText () әдісі не үшін қолданылады?", "answers": [{"letter": "A", "text": "Файлды берілген жол бойынша өшіру"}, {"letter": "B", "text": "Бос файл құру үшін"}, {"letter": "C", "text": "Жаңа файл құру, немесе бар файлды ашу және файлда бар мәтіндерді ауыстырып жаңа мәтін жазу үшін"}, {"letter": "D", "text": "Жаңа файл құру, немесе бар файлды ашу және жаңа мәтінді файл соңына жазу үшін"}, {"letter": "E", "text": "Барлық деректерді файлдан оқу үшін"}], "correct": 0}, {"question": "Файлды берілген жол бойынша өшіру әдісі", "answers": [{"letter": "A", "text": "WriteAllText ()"}, {"letter": "B", "text": "Create ()"}, {"letter": "C", "text": "Delete()"}, {"letter": "D", "text": "AppendAllText ()"}, {"letter": "E", "text": "ReadLine()"}], "correct": 0}, {"question": "Delete() әдісі не үшін қолданылады?", "answers": [{"letter": "A", "text": "Барлық деректерді файлдан оқу үшін"}, {"letter": "C", "text": "Жаңа файл құру, немесе бар файлды ашу және файлда бар мәтіндерді ауыстырып жаңа мәтін жазу үшін"}, {"letter": "D", "text": "Жаңа файл құру, немесе бар файлды ашу және жаңа мәтінді файл соңына жазу үшін"}, {"letter": "E", "text": "Файлды берілген жол бойынша өшіру"}], "correct": 0}, {"question": "Барлық деректерді файлдан оқу әдісі", "answers": [{"letter": "A", "text": "WriteAllText ()"}, {"letter": "B", "text": "Create ()"}, {"letter": "C", "text": "ReadToEnd()"}, {"letter": "D", "text": "AppendAllText ()"}, {"letter": "E", "text": "ReadLine()"}], "correct": 0}, {"question": "ReadToEnd() әдісі не үшін қолданылады?", "answers": [{"letter": "A", "text": "Барлық деректерді файлдан оқу үшін"}, {"letter": "B", "text": "Бос файл құру үшін"}, {"letter": "C", "text": "Жаңа файл құру, немесе бар файлды ашу және файлда бар мәтіндерді ауыстырып жаңа мәтін жазу үшін"}, {"letter": "D", "text": "Жаңа файл құру, немесе бар файлды ашу және жаңа мәтінді файл соңына жазу үшін"}, {"letter": "E", "text": "Файлды берілген жол бойынша өшіру"}], "correct": 0}, {"question": "Файлға жазу әдісі", "answers": [{"letter": "A", "text": "ReadLine()"}, {"letter": "B", "text": "Create ()"}, {"letter": "C", "text": "WriteAllText ()"}, {"letter": "D", "text": "AppendAllText ()"}, {"letter": "E", "text": "WriteLine()"}], "correct": 0}, {"question": "WriteLine() әдісі не үшін қолданылады?", "answers": [{"letter": "A", "text": "Файлға жазу үшін"}, {"letter": "B", "text": "Бос файл құру үшін"}, {"letter": "C", "text": "Жаңа файл құру, немесе бар файлды ашу және файлда бар мәтіндерді ауыстырып жаңа мәтін жазу үшін"}, {"letter": "D", "text": "Жаңа файл құру, немесе бар файлды ашу және жаңа мәтінді файл соңына жазу үшін"}, {"letter": "E", "text": "Файлды берілген жол бойынша өшіру"}], "correct": 0}, {"question": "Файлды жабу әдісі", "answers": [{"letter": "A", "text": "WriteAllText ()"}, {"letter": "B", "text": "Create ()"}, {"letter": "C", "text": "Close()"}, {"letter": "D", "text": "AppendAllText ()"}, {"letter": "E", "text": "ReadLine()"}], "correct": 0}, {"question": "Close() әдісі не үшін қолданылады?", "answers": [{"letter": "A", "text": "Бос файл құру үшін"}, {"letter": "B", "text": "Файлды жабу үшін"}, {"letter": "C", "text": "Жаңа файл құру, немесе бар файлды ашу және файлда бар мәтіндерді ауыстырып жаңа мәтін жазу үшін"}, {"letter": "D", "text": "Жаңа файл құру, немесе бар файлды ашу және жаңа мәтінді файл соңына жазу үшін"}, {"letter": "E", "text": "Файлды берілген жол бойынша өшіру"}], "correct": 0}, {"question": "Басқа класс негізінде жаңа класс құру қағидасы", "answers": [{"letter": "A", "text": "туындау"}, {"letter": "B", "text": "полиморфизм"}, {"letter": "C", "text": "абстракция"}, {"letter": "D", "text": "инкапсуляция"}, {"letter": "E", "text": "модификация"}], "correct": 0}, {"question": "Бос файл құру әдісі", "answers": [{"letter": "A", "text": "WriteAllText()"}, {"letter": "B", "text": "Create()"}, {"letter": "C", "text": "AppendAllText()"}, {"letter": "D", "text": "Delete()"}, {"letter": "E", "text": "FileStream"}], "correct": 0}, {"question": "Жаңа файл құратын, не бар файлды ашатын және оған мәтін жазатын әдіс", "answers": [{"letter": "A", "text": "Create()"}, {"letter": "B", "text": "WriteAllText()"}, {"letter": "C", "text": "AppendAllText()"}, {"letter": "D", "text": "Delete()"}, {"letter": "E", "text": "FileStream"}], "correct": 0}, {"question": "Мәтінді файлдың соңына қосатын әдіс", "answers": [{"letter": "A", "text": "AppendAllText()"}, {"letter": "B", "text": "Create()"}, {"letter": "C", "text": "WriteAllText()"}, {"letter": "D", "text": "Delete()"}, {"letter": "E", "text": "FileStream"}], "correct": 0}, {"question": "Көрсетілген жол бойынша файлды өшіретін әдіс", "answers": [{"letter": "A", "text": "Delete()"}, {"letter": "B", "text": "Create()"}, {"letter": "C", "text": "WriteAllText()"}, {"letter": "D", "text": "AppendAllText()"}, {"letter": "E", "text": "FileStream"}], "correct": 0}, {"question": "C#-та графика құруға арналған кітапхананы көрсетіңіз", "answers": [{"letter": "A", "text": "System.Linq"}, {"letter": "B", "text": "System.Data"}, {"letter": "C", "text": "System.Drawing"}, {"letter": "D", "text": "System.Text"}, {"letter": "E", "text": "System.Windows.Forms"}], "correct": 0}, {"question": "C#-та тіктөртбұрыш салу әдісі", "answers": [{"letter": "A", "text": "DrawBezier"}, {"letter": "B", "text": "DrawLine"}, {"letter": "C", "text": "DrawEllipse"}, {"letter": "D", "text": "DrawArc"}, {"letter": "E", "text": "DrawRectangle"}], "correct": 0}, {"question": "C#-та сызық салуға арналған әдіс", "answers": [{"letter": "A", "text": "DrawBezier"}, {"letter": "B", "text": "DrawRectangle"}, {"letter": "C", "text": "DrawEllipse"}, {"letter": "D", "text": "DrawArc"}, {"letter": "E", "text": "DrawLine"}], "correct": 0}, {"question": "C#-та эллипс салуға арналған әдіс", "answers": [{"letter": "A", "text": "DrawArc"}, {"letter": "B", "text": "DrawRectangle"}, {"letter": "C", "text": "DrawLine"}, {"letter": "D", "text": "DrawEllipse"}, {"letter": "E", "text": "DrawBezier"}], "correct": 0}, {"question": "C#-та доға салуға арналған әдіс", "answers": [{"letter": "A", "text": "DrawRectangle"}, {"letter": "B", "text": "DrawArc"}, {"letter": "C", "text": "DrawLine"}, {"letter": "D", "text": "DrawEllipse"}, {"letter": "E", "text": "DrawBezier"}], "correct": 0}, {"question": "C#-та Безье сплайнын салу әдісі", "answers": [{"letter": "A", "text": "DrawEllipse"}, {"letter": "B", "text": "DrawRectangle"}, {"letter": "C", "text": "DrawLine"}, {"letter": "D", "text": "DrawBezier"}, {"letter": "E", "text": "DrawArc"}], "correct": 0}, {"question": "Сызық салу, геометриялық фигуралардың контурларын салуға арналған объектіні көрсетіңіз", "answers": [{"letter": "A", "text": "Brush"}, {"letter": "B", "text": "Pen"}, {"letter": "C", "text": "Font"}, {"letter": "D", "text": "Color"}, {"letter": "E", "text": "Graphics"}], "correct": 0}, {"question": "Тұйық облыстарды бояуға арналған объектіні көрсетіңіз", "answers": [{"letter": "A", "text": "Brush"}, {"letter": "B", "text": "Pen"}, {"letter": "C", "text": "Font"}, {"letter": "D", "text": "Color"}, {"letter": "E", "text": "Graphics"}], "correct": 0}, {"question": "Мәтіннің қаріпін баптауға арналған объектіні көрсетіңіз", "answers": [{"letter": "A", "text": "Font"}, {"letter": "B", "text": "Pen"}, {"letter": "C", "text": "Brush"}, {"letter": "D", "text": "Color"}, {"letter": "E", "text": "Graphics"}], "correct": 0}, {"question": "Түс таңдауға арналған объектіні көрсетіңіз", "answers": [{"letter": "A", "text": "Color"}, {"letter": "B", "text": "Color"}, {"letter": "C", "text": "Brush"}, {"letter": "D", "text": "Font"}, {"letter": "E", "text": "Graphics"}], "correct": 0}, {"question": "GDI+ сурет салу бетін және графикалық бейнелерді құру үшін пайдаланылатын объектіні көрсетіңіз", "answers": [{"letter": "A", "text": "Color"}, {"letter": "B", "text": "Pen"}, {"letter": "C", "text": "Brush"}, {"letter": "D", "text": "Font"}, {"letter": "E", "text": "Graphics"}], "correct": 0}, {"question": "Form класының ActiveMDIChild қасиетінің сипаттамасын көрсетіңіз", "answers": [{"letter": "A", "text": "формада қолданылатын қаріптің биіктігіне сәйкес келу үшін, ол өз өлшемдерін автоматты өзгертетіндігін анықтайтын мәндерді орнатуды қамтамасыз етеді;"}, {"letter": "B", "text": "қолданушы Enter пернетақтасын басу кезінде белсенді болатын батырманы беретін немесе батырма туралы ақпарат алуға мүмкіндік береді;"}, {"letter": "C", "text": "көпқұжатты интерфейсті қолданбаларда пайдалану үшін тағайындалған ;"}, {"letter": "D", "text": "форма айналасындағы жиек стилін орнатуды қамтамасыз етеді;"}, {"letter": "E", "text": "форма тақырыбының сол жақ жоғарғы бұрышындағы жүйелік меню батырмаларын орналастыруды қамтамасыз етеді;"}], "correct": 0}, {"question": "Form класының AcceptButton қасиетінің сипаттамасын көрсетіңіз", "answers": [{"letter": "A", "text": "қолданушы Enter пернетақтасын басу кезінде белсенді болатын батырманы беретін немесе батырма туралы ақпарат алуға мүмкіндік береді;"}, {"letter": "B", "text": "көпқұжатты интерфейсті қолданбаларда пайдалану үшін тағайындалған ;"}, {"letter": "C", "text": "формада қолданылатын қаріптің биіктігіне сәйкес келу үшін, ол өз өлшемдерін автоматты өзгертетіндігін анықтайтын мәндерді орнатуды қамтамасыз етеді;"}, {"letter": "D", "text": "форма айналасындағы жиек стилін орнатуды қамтамасыз етеді;"}, {"letter": "E", "text": "форма тақырыбының сол жақ жоғарғы бұрышындағы жүйелік меню батырмаларын орналастыруды қамтамасыз етеді;"}], "correct": 0}, {"question": "Form класының AutoScale қасиетінің сипаттамасын көрсетіңіз", "answers": [{"letter": "A", "text": "көпқұжатты интерфейсті қолданбаларда пайдалану үшін тағайындалған ;"}, {"letter": "B", "text": "формада қолданылатын қаріптің биіктігіне сәйкес келу үшін, форма өлшемдерін автоматты өзгертетіндігін анықтайтын мәндерді орнатуды қамтамасыз етеді;"}, {"letter": "C", "text": "қолданушы Enter пернетақтасын басу кезінде белсенді болатын батырманы беретін немесе батырма туралы ақпарат алуға мүмкіндік береді;"}, {"letter": "D", "text": "форма айналасындағы жиек стилін орнатуды қамтамасыз етеді;"}, {"letter": "E", "text": "форма тақырыбының сол жақ жоғарғы бұрышындағы жүйелік меню батырмаларын орналастыруды қамтамасыз етеді;"}], "correct": 0}, {"question": "Form класының FormBorderStyle қасиетінің сипаттамасын көрсетіңіз", "answers": [{"letter": "A", "text": "форма тақырыбының сол жақ жоғарғы бұрышындағы жүйелік меню батырмаларын орналастыруды қамтамасыз етеді;"}, {"letter": "B", "text": "көпқұжатты интерфейсті қолданбаларда пайдалану үшін тағайындалған ;"}, {"letter": "C", "text": "қолданушы Enter пернетақтасын басу кезінде белсенді болатын батырманы беретін немесе батырма туралы ақпарат алуға мүмкіндік береді;"}, {"letter": "D", "text": "формада қолданылатын қаріптің биіктігіне сәйкес келу үшін, форма өлшемдерін автоматты өзгертетіндігін анықтайтын мәндерді орнатуды қамтамасыз етеді;"}, {"letter": "E", "text": "форма айналасындағы жиек стилін орнатуды қамтамасыз етеді;"}], "correct": 0}, {"question": "Form класының ControlBox қасиетінің сипаттамасын көрсетіңіз", "answers": [{"letter": "A", "text": "форма тақырыбының сол жақ жоғарғы бұрышындағы жүйелік меню батырмаларын орналастыруды қамтамасыз етеді;"}, {"letter": "B", "text": "көпқұжатты интерфейсті қолданбаларда пайдалану үшін тағайындалған ;"}, {"letter": "C", "text": "қолданушы Enter пернетақтасын басу кезінде белсенді болатын батырманы беретін немесе батырма туралы ақпарат алуға мүмкіндік береді;"}, {"letter": "D", "text": "формада қолданылатын қаріптің биіктігіне сәйкес келу үшін, форма өлшемдерін автоматты өзгертетіндігін анықтайтын мәндерді орнатуды қамтамасыз етеді;"}, {"letter": "E", "text": "форма айналасындағы жиек стилін орнатуды қамтамасыз етеді;"}], "correct": 0}, {"question": "Басқару элементінің көрінуін басқаратын қасиет", "answers": [{"letter": "A", "text": "Enabled"}, {"letter": "B", "text": "Visible"}, {"letter": "C", "text": "Text"}, {"letter": "D", "text": "Font"}, {"letter": "E", "text": "Items"}], "correct": 0}, {"question": "Тізіммен жұмысқа арналған басқару элементі", "answers": [{"letter": "A", "text": "TextBox"}, {"letter": "B", "text": "ListBox"}, {"letter": "C", "text": "Button"}, {"letter": "D", "text": "Label"}, {"letter": "E", "text": "PictureBox"}], "correct": 0}, {"question": "Жалаушамен жұмысқа арналған басқару элементі", "answers": [{"letter": "A", "text": "ListBox"}, {"letter": "B", "text": "TextBox"}, {"letter": "C", "text": "Button"}, {"letter": "D", "text": "CheckBox"}, {"letter": "E", "text": "PictureBox"}], "correct": 0}, {"question": "Басқару элементінің атауын өзгерту қасиеті", "answers": [{"letter": "A", "text": "Color"}, {"letter": "B", "text": "Name"}, {"letter": "C", "text": "Width"}, {"letter": "D", "text": "BackColor"}, {"letter": "E", "text": "Font"}], "correct": 0}, {"question": "Басқару элементінің фон түсін өзгерту қасиеті", "answers": [{"letter": "A", "text": "BackColor"}, {"letter": "B", "text": "Color"}, {"letter": "C", "text": "Width"}, {"letter": "D", "text": "Text"}, {"letter": "E", "text": "Font"}], "correct": 0}, {"question": "Басқару элементінің көрінуін басқаратын қасиет", "answers": [{"letter": "A", "text": "Font"}, {"letter": "B", "text": "Color"}, {"letter": "C", "text": "Width"}, {"letter": "D", "text": "BackColor"}, {"letter": "E", "text": "Visible"}], "correct": 0}, {"question": "Басқару элементінің енін орнату қасиеті", "answers": [{"letter": "A", "text": "Width"}, {"letter": "B", "text": "Color"}, {"letter": "C", "text": "Text"}, {"letter": "D", "text": "BackColor"}, {"letter": "E", "text": "Font"}], "correct": 0}, {"question": "Басқару элементінің биіктігін орнату қасиеті", "answers": [{"letter": "A", "text": "Height"}, {"letter": "B", "text": "Width"}, {"letter": "C", "text": "Text"}, {"letter": "D", "text": "BackColor"}, {"letter": "E", "text": "Font"}], "correct": 0}, {"question": "Басқару элементінің қарпін баптау қасиеті", "answers": [{"letter": "A", "text": "BackColor"}, {"letter": "B", "text": "Color"}, {"letter": "C", "text": "Text"}, {"letter": "D", "text": "Font"}, {"letter": "E", "text": "Width"}], "correct": 0}, {"question": "Бір жолды мәтінді енгізіп және жөндеуге арналған басқару элементі", "answers": [{"letter": "A", "text": "TextBox"}, {"letter": "B", "text": "CheckBox"}, {"letter": "C", "text": "Button"}, {"letter": "D", "text": "ListBox"}, {"letter": "E", "text": "PictureBox"}], "correct": 0}, {"question": "Тізіммен жұмысқа арналған басқару элементі", "answers": [{"letter": "A", "text": "PictureBox"}, {"letter": "B", "text": "CheckBox"}, {"letter": "C", "text": "Button"}, {"letter": "D", "text": "TextBox"}, {"letter": "E", "text": "ListBox"}], "correct": 0}, {"question": "Тізімнің барлық элементтер жиынтығын сақтайтын қасиет", "answers": [{"letter": "A", "text": "Text"}, {"letter": "B", "text": "SelectedItems"}, {"letter": "C", "text": "Items"}, {"letter": "D", "text": "BackColor"}, {"letter": "E", "text": "Width"}], "correct": 0}, {"question": "Файлды ашуға арналған диалогты терезе", "answers": [{"letter": "A", "text": "OpenFileDialog"}, {"letter": "B", "text": "MessageBox"}, {"letter": "C", "text": "SaveFileDialog"}, {"letter": "D", "text": "FontDialog"}, {"letter": "E", "text": "ColorDialog"}], "correct": 0}, {"question": "Файлды сақтауға арналған диалогты терезе", "answers": [{"letter": "A", "text": "MessageBox"}, {"letter": "B", "text": "OpenFileDialog"}, {"letter": "C", "text": "SaveFileDialog"}, {"letter": "D", "text": "FontDialog"}, {"letter": "E", "text": "ColorDialog"}], "correct": 0}, {"question": "Қаріп және оның параметрлерін таңдауға арналған диалогты терезе", "answers": [{"letter": "A", "text": "SaveFileDialog"}, {"letter": "B", "text": "FontDialog"}, {"letter": "C", "text": "OpenFileDialog"}, {"letter": "D", "text": "MessageBox"}, {"letter": "E", "text": "ColorDialog"}], "correct": 0}, {"question": "Түсті баптауға арналған диалогты терезе", "answers": [{"letter": "A", "text": "OpenFileDialog"}, {"letter": "B", "text": "FontDialog"}, {"letter": "C", "text": "SaveFileDialog"}, {"letter": "D", "text": "ColorDialog"}, {"letter": "E", "text": "MessageBox"}], "correct": 0}, {"question": "Хабарлама шығаруға арналған элемент", "answers": [{"letter": "A", "text": "ColorDialog"}, {"letter": "B", "text": "MessageBox"}, {"letter": "C", "text": "FontDialog"}, {"letter": "D", "text": "SaveFileDialog"}, {"letter": "E", "text": "OpenFileDialog"}], "correct": 0}, {"question": "SaveFileDialog қандай мақсатта қолданылады?", "answers": [{"letter": "A", "text": "Файлды сақтау орнын және атын таңдау"}, {"letter": "B", "text": "Файлды оқу"}, {"letter": "C", "text": "Файлды жүктеу"}, {"letter": "D", "text": "Файлды өңдеу"}, {"letter": "E", "text": "Файлды басып шығару"}], "correct": 0}, {"question": "OpenFileDialog компонентінде файл түрлерін шектеу үшін қандай қасиет қолданылады?", "answers": [{"letter": "A", "text": "InitialDirectory"}, {"letter": "B", "text": "FileName"}, {"letter": "C", "text": "Title"}, {"letter": "D", "text": "Filter"}, {"letter": "E", "text": "RestoreDirectory"}], "correct": 0}, {"question": "OpenFileDialog компонентінде таңдалған файлдың толық жолын қай қасиет арқылы аламыз?", "answers": [{"letter": "A", "text": "FileName"}, {"letter": "B", "text": "Filter"}, {"letter": "C", "text": "Title"}, {"letter": "D", "text": "CheckFileExists"}, {"letter": "E", "text": "ValidateNames"}], "correct": 0}, {"question": "Диалогтық терезені көрсету үшін қандай әдіс қолданылады?", "answers": [{"letter": "A", "text": "Open()"}, {"letter": "B", "text": "ShowDialog()"}, {"letter": "C", "text": "Display()"}, {"letter": "D", "text": "Run()"}, {"letter": "E", "text": "Execute()"}], "correct": 0}]
+;
+
+let quizQuestions = [];
+let currentIndex = 0;
+let correctCount = 0;
+let wrongCount = 0;
+let userAnswers = [];
+let answered = false;
+let selectedAnswerIndex = null;
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function startQuiz(mode) {
+  let pool = shuffle(QUESTIONS);
+  if (mode === 40) pool = pool.slice(0, 40);
+
+  // Shuffle answers for each question
+  quizQuestions = pool.map(q => {
+    const shuffledAnswers = shuffle(q.answers);
+    return { ...q, answers: shuffledAnswers };
+  });
+
+  currentIndex = 0;
+  correctCount = 0;
+  wrongCount = 0;
+  userAnswers = [];
+  answered = false;
+  selectedAnswerIndex = null;
+
+  document.getElementById('quiz-mode-label').textContent =
+    mode === 40 ? 'Жылдам тест (40 сұрақ)' : 'Толық тест (371 сұрақ)';
+
+  showScreen('quiz-screen');
+  renderQuestion();
+}
+
+function renderQuestion() {
+  const q = quizQuestions[currentIndex];
+  const total = quizQuestions.length;
+
+  document.getElementById('q-number').textContent =
+    `Сұрақ ${currentIndex + 1} / ${total}`;
+  document.getElementById('q-text').textContent = q.question;
+
+  const pct = (currentIndex / total) * 100;
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-text').textContent = `${currentIndex} / ${total}`;
+  document.getElementById('score-correct').textContent = correctCount;
+  document.getElementById('score-wrong').textContent = wrongCount;
+  document.getElementById('next-btn').disabled = true;
+
+  // Clear feedback
+  document.getElementById('checking-ind').classList.remove('visible');
+  const fb = document.getElementById('feedback-box');
+  fb.className = 'feedback-box';
+  fb.textContent = '';
+
+  answered = false;
+  selectedAnswerIndex = null;
+
+  const grid = document.getElementById('answers-grid');
+  grid.innerHTML = '';
+
+  q.answers.forEach((ans, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'answer-btn';
+    btn.innerHTML = `<span class="letter">${String.fromCharCode(65 + i)}</span><span>${ans.text.replace(/;$/, '')}</span>`;
+    btn.onclick = () => selectAnswer(i);
+    grid.appendChild(btn);
+  });
+}
+
+async function selectAnswer(idx) {
+  if (answered) return;
+  answered = true;
+  selectedAnswerIndex = idx;
+
+  const q = quizQuestions[currentIndex];
+  const buttons = document.querySelectorAll('.answer-btn');
+  buttons.forEach(b => b.classList.add('disabled'));
+  buttons[idx].classList.add('selected');
+
+  document.getElementById('checking-ind').classList.add('visible');
+
+  try {
+    const result = await checkAnswer(q, idx);
+    document.getElementById('checking-ind').classList.remove('visible');
+
+    const fb = document.getElementById('feedback-box');
+    if (result.correct) {
+      correctCount++;
+      buttons[idx].classList.remove('selected');
+      buttons[idx].classList.add('correct');
+      fb.className = 'feedback-box correct-fb';
+      fb.textContent = '✓ Дұрыс!';
+    } else {
+      wrongCount++;
+      buttons[idx].classList.remove('selected');
+      buttons[idx].classList.add('wrong');
+      // Highlight correct answer
+      if (result.correctIndex !== undefined && result.correctIndex >= 0) {
+        buttons[result.correctIndex].classList.add('correct');
+      }
+      fb.className = 'feedback-box wrong-fb';
+      fb.textContent = '✗ Қате. ' + (result.explanation || '');
+    }
+
+    userAnswers.push({
+      question: q.question,
+      answers: q.answers,
+      selectedIndex: idx,
+      correctIndex: result.correctIndex,
+      isCorrect: result.correct
+    });
+
+    document.getElementById('score-correct').textContent = correctCount;
+    document.getElementById('score-wrong').textContent = wrongCount;
+    document.getElementById('next-btn').disabled = false;
+
+    if (currentIndex === quizQuestions.length - 1) {
+      document.getElementById('next-btn').textContent = 'Аяқтау ✓';
+    }
+
+  } catch (e) {
+    document.getElementById('checking-ind').classList.remove('visible');
+    const fb = document.getElementById('feedback-box');
+    fb.className = 'feedback-box wrong-fb';
+    fb.textContent = 'Қате тексеру мүмкін болмады. API байланысын тексеріңіз.';
+    document.getElementById('next-btn').disabled = false;
+    
+    userAnswers.push({
+      question: q.question,
+      answers: q.answers,
+      selectedIndex: idx,
+      correctIndex: -1,
+      isCorrect: false
+    });
+  }
+}
+
+async function checkAnswer(q, selectedIdx) {
+  const answersList = q.answers.map((a, i) =>
+    `${String.fromCharCode(65+i)}) ${a.text}`
+  ).join('\n');
+
+  const prompt = `You are a C# programming teacher. A student answered a multiple choice question.
+
+Question: ${q.question}
+
+Answers:
+${answersList}
+
+Student selected: ${String.fromCharCode(65 + selectedIdx)}) ${q.answers[selectedIdx].text}
+
+Determine which answer (A, B, C, D, or E) is CORRECT for this question about C# or .NET programming.
+This is a Kazakh language test about C#/.NET programming concepts.
+
+Respond with ONLY a JSON object in this exact format (no other text):
+{"correct": true/false, "correctLetter": "A/B/C/D/E", "correctIndex": 0/1/2/3/4}
+
+Where correct=true if student's answer is right, correctLetter is the right answer letter, correctIndex is 0-4 index of correct answer.`;
+
+  const response = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-6',
+      max_tokens: 100,
+      messages: [{ role: 'user', content: prompt }]
+    })
+  });
+
+  const data = await response.json();
+  const text = data.content[0].text.trim();
+  const parsed = JSON.parse(text.replace(/```json|```/g, '').trim());
+  return {
+    correct: parsed.correct,
+    correctIndex: parsed.correctIndex,
+    explanation: parsed.correctLetter ? `Дұрыс жауап: ${parsed.correctLetter}` : ''
+  };
+}
+
+function nextQuestion() {
+  if (currentIndex >= quizQuestions.length - 1) {
+    showResult();
+    return;
+  }
+  currentIndex++;
+  renderQuestion();
+}
+
+function showResult() {
+  const total = quizQuestions.length;
+  const pct = Math.round((correctCount / total) * 100);
+
+  document.getElementById('res-correct').textContent = correctCount;
+  document.getElementById('res-wrong').textContent = wrongCount;
+  document.getElementById('res-total').textContent = total;
+  document.getElementById('score-pct').textContent = pct + '%';
+  document.getElementById('result-subtitle').textContent =
+    `${total} сұрақтан ${correctCount} дұрыс жауап бердіңіз`;
+
+  const circle = document.getElementById('score-circle');
+  circle.style.setProperty('--pct', pct + '%');
+
+  let emoji, title;
+  if (pct >= 90) { emoji = '🏆'; title = 'Тамаша!'; }
+  else if (pct >= 75) { emoji = '🎉'; title = 'Жарайсың!'; }
+  else if (pct >= 60) { emoji = '👍'; title = 'Жақсы нәтиже!'; }
+  else if (pct >= 40) { emoji = '📚'; title = 'Жалғастырыңыз!'; }
+  else { emoji = '💪'; title = 'Тырысыңыз!'; }
+
+  document.getElementById('result-emoji').textContent = emoji;
+  document.getElementById('result-title').textContent = title;
+
+  showScreen('result-screen');
+}
+
+function showReview() {
+  const body = document.getElementById('review-body');
+  body.innerHTML = '';
+
+  userAnswers.forEach((ua, i) => {
+    const item = document.createElement('div');
+    item.className = 'review-item ' + (ua.isCorrect ? 'correct-item' : 'wrong-item');
+
+    let answersHtml = ua.answers.map((a, j) => {
+      let cls = 'r-neutral';
+      if (j === ua.correctIndex) cls = 'r-correct';
+      else if (j === ua.selectedIndex && !ua.isCorrect) cls = 'r-wrong-sel';
+      const prefix = j === ua.correctIndex ? '✓' : (j === ua.selectedIndex ? '✗' : '');
+      return `<div class="review-ans ${cls}"><span>${prefix || String.fromCharCode(65+j) + ')'}</span><span>${a.text.replace(/;$/, '')}</span></div>`;
+    }).join('');
+
+    item.innerHTML = `
+      <div class="review-q-num">Сұрақ ${i+1} — ${ua.isCorrect ? '✓ Дұрыс' : '✗ Қате'}</div>
+      <div class="review-q-text">${ua.question}</div>
+      <div class="review-answers">${answersHtml}</div>
+    `;
+    body.appendChild(item);
+  });
+
+  showScreen('review-screen');
+}
+
+function backToResult() { showScreen('result-screen'); }
+
+function exitToMenu() { showScreen('menu-screen'); }
+
+function showScreen(id) {
+  ['menu-screen','quiz-screen','result-screen','review-screen'].forEach(s => {
+    const el = document.getElementById(s);
+    if (s === 'quiz-screen') el.style.display = s === id ? 'block' : 'none';
+    else el.style.display = s === id ? 'flex' : 'none';
+  });
+}
+
+// Init
+document.getElementById('quiz-screen').style.display = 'none';
+document.getElementById('result-screen').style.display = 'none';
+document.getElementById('review-screen').style.display = 'none';
+</script>
+</body>
+</html>
